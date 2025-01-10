@@ -1,0 +1,36 @@
+{
+  "name": "merlin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build && cross-env NODE_ENV=production node dist/server.js",
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "build": "swc src -d dist --source-maps --copy-files",
+    "build:tsc": "tsc && tsc-alias",
+    "test": "jest --forceExit --detectOpenHandles",
+    "lint": "eslint --ignore-path .gitignore --ext .ts src",
+    "lint:fix": "npm run lint -- --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dim2k2006/merlin.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dim2k2006/merlin/issues"
+  },
+  "homepage": "https://github.com/dim2k2006/merlin#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "envalid": "^8.0.0",
+    "fastify": "^5.2.1",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.7.3"
+  }
+}
