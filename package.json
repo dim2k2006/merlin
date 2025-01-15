@@ -12,7 +12,9 @@
     "dev": "cross-env NODE_ENV=development nodemon",
     "build": "swc src -d dist --source-maps --copy-files",
     "build:tsc": "tsc && tsc-alias",
-    "test": "jest --forceExit --detectOpenHandles",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:ci": "vitest run --reporter=dot",
     "lint": "eslint"
   },
   "repository": {
