@@ -3,8 +3,12 @@ export interface LlmProviderInterface {
 }
 
 export type CreateChatCompletionInput = {
+  messages: ChatMessage[];
+};
+
+export type ChatMessage = {
   role: string;
-  content: string | string[];
+  content: string;
 };
 
 export type ChatCompletion = {
