@@ -51,6 +51,13 @@ server.post<{ Body: CreateMemoryBody; Reply: Memory }>('/memories', async (reque
   reply.send(memory);
 });
 
+server.post<{ Body: { userId: string; content: string }; Reply: string }>('/memories/query', async (request, reply) => {
+  const { userId, content } = request.body;
+  const response = await memoryService.findRelevantMemories({ userId, content, k: 10 });
+
+  reply.send(response);
+});
+
 server.get('/ping', async () => {
   return 'pong\n';
 });
