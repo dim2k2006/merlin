@@ -6,5 +6,5 @@ export type Memory = {
   userId: string;
   content: string;
   embeddingVector: number[];
-  metadata?: Record<string, unknown>;
+  createdAt: string;
 };

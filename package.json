@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/dim2k2006/merlin#readme",
   "dependencies": {
+    "@pinecone-database/pinecone": "^4.1.0",
     "@supabase/supabase-js": "^2.47.16",
     "dotenv": "^16.4.7",
     "envalid": "^8.0.0",
