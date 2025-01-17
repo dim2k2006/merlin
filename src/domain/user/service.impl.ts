@@ -1,14 +1,14 @@
 import { v4 as uuidV4 } from 'uuid';
 import { User } from './user.model';
-import { UserRepositoryInterface } from './user.repository.interface';
-import { UserServiceInterface, CreateUserInput } from './user.service.interface';
+import { Repository } from './repository';
+import { Service, CreateUserInput } from './service';
 
 type ConstructorInput = {
-  userRepository: UserRepositoryInterface;
+  userRepository: Repository;
 };
 
-class UserService implements UserServiceInterface {
-  private readonly userRepository: UserRepositoryInterface;
+class ServiceImpl implements Service {
+  private readonly userRepository: Repository;
 
   constructor({ userRepository }: ConstructorInput) {
     this.userRepository = userRepository;
@@ -38,4 +38,4 @@ class UserService implements UserServiceInterface {
   }
 }
 
-export default UserService;
+export default ServiceImpl;
