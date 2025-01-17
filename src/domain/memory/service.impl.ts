@@ -1,12 +1,12 @@
-import { Memory } from './memory.model';
-import { MemoryRepositoryInterface, CreateMemoryInput } from './memory.repository.interface';
+import { Memory } from './model';
+import { Repository, CreateMemoryInput } from './repository';
 
 type ConstructorInput = {
-  memoryRepository: MemoryRepositoryInterface;
+  memoryRepository: Repository;
 };
 
-class MemoryService {
-  private memoryRepository: MemoryRepositoryInterface;
+class ServiceImpl {
+  private memoryRepository: Repository;
 
   constructor({ memoryRepository }: ConstructorInput) {
     this.memoryRepository = memoryRepository;
@@ -29,4 +29,4 @@ class MemoryService {
   }
 }
 
-export default MemoryService;
+export default ServiceImpl;

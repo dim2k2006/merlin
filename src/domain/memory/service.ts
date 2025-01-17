@@ -1,7 +1,7 @@
-import { Memory } from './memory.model';
-import { CreateMemoryInput } from './memory.repository.interface';
+import { Memory } from './model';
+import { CreateMemoryInput } from './repository';
 
-export interface MemoryServiceInterface {
+export interface Service {
   saveMemory(memory: CreateMemoryInput): Promise<Memory>;
   findMemoriesByUserId(userId: string): Promise<Memory[]>;
   findRelevantMemories(userId: string, queryEmbedding: number[], k: number): Promise<Memory[]>;
