@@ -1,13 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../../types/database.types';
-import { User } from './model';
+import { User } from './user.model';
 
 type ConstructorInput = {
   supabaseUrl: string;
   supabaseKey: string;
 };
 
-class RepositorySupabase {
+class UserRepositorySupabase {
   private supabase: ReturnType<typeof createClient<Database>>;
 
   constructor({ supabaseUrl, supabaseKey }: ConstructorInput) {
@@ -81,4 +81,4 @@ class RepositorySupabase {
   }
 }
 
-export default RepositorySupabase;
+export default UserRepositorySupabase;

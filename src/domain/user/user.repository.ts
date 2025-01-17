@@ -1,6 +1,6 @@
-import { User } from './model';
+import { User } from './user.model';
 
-export interface Repository {
+export interface UserRepository {
   createUser(user: User): Promise<User>;
   findUserById(id: string): Promise<User | null>;
   updateUser(user: User): Promise<User>;

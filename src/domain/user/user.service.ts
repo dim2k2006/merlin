@@ -1,6 +1,6 @@
 import { User } from './user.model';
 
-export interface Service {
+export interface UserService {
   createUser(user: CreateUserInput): Promise<User>;
   getUserById(id: string): Promise<User | null>;
   updateUser(user: User): Promise<User>;

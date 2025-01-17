@@ -1,5 +1,5 @@
-export { User } from './model';
-export { Repository } from './repository';
-export { default as RepositorySupabase } from './repository.supabase';
-export { Service, CreateUserInput } from './service';
-export { default as ServiceImpl } from './service.impl';
+export { User } from './user.model';
+export { UserRepository } from './user.repository';
+export { default as UserRepositorySupabase } from './user.repository.supabase';
+export { UserService, CreateUserInput } from './user.service';
+export { default as UserServiceImpl } from './user.service.impl';
