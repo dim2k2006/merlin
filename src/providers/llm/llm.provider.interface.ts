@@ -7,10 +7,12 @@ export type CreateChatCompletionInput = {
 };
 
 export type ChatMessage = {
-  role: string;
+  role: Role;
   content: string;
 };
 
 export type ChatCompletion = {
   content: string;
 };
+
+type Role = 'developer' | 'user';
