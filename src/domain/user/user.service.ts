@@ -1,6 +1,7 @@
+import { v4 as uuidV4 } from 'uuid';
 import { User } from './user.model';
-import { UserRepositoryInterface, CreateUserInput } from './user.repository.interface';
-import { UserServiceInterface } from './user.service.interface';
+import { UserRepositoryInterface } from './user.repository.interface';
+import { UserServiceInterface, CreateUserInput } from './user.service.interface';
 
 type ConstructorInput = {
   userRepository: UserRepositoryInterface;
@@ -13,7 +14,14 @@ class UserService implements UserServiceInterface {
     this.userRepository = userRepository;
   }
 
-  async createUser(user: CreateUserInput): Promise<User> {
+  async createUser(input: CreateUserInput): Promise<User> {
+    const user = {
+      id: input.id ?? uuidV4(),
+      name: input.name,
+      email: input.email,
+      createdAt: new Date().toISOString(),
+    };
+
     return this.userRepository.createUser(user);
   }
 
