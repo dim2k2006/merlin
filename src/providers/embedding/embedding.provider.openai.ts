@@ -1,11 +1,11 @@
 import OpenAI from 'openai';
-import { Provider, CreateEmbeddingInput, Embedding } from './provider';
+import { EmbeddingProviderInterface, CreateEmbeddingInput, Embedding } from './embedding.provider.interface';
 
 type ConstructorInput = {
   apiKey: string;
 };
 
-class ProviderOpenAI implements Provider {
+export class OpenAIEmbeddingProvider implements EmbeddingProviderInterface {
   private openai: OpenAI;
 
   constructor({ apiKey }: ConstructorInput) {
@@ -26,5 +26,3 @@ class ProviderOpenAI implements Provider {
     };
   }
 }
-
-export default ProviderOpenAI;
