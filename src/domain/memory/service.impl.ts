@@ -1,18 +1,29 @@
+import { v4 as uuidV4 } from 'uuid';
 import { Memory } from './model';
-import { Repository, CreateMemoryInput } from './repository';
+import { Repository } from './repository';
+import { Service, CreateMemoryInput } from './service';
 
 type ConstructorInput = {
   memoryRepository: Repository;
 };
 
-class ServiceImpl {
+class ServiceImpl implements Service {
   private memoryRepository: Repository;
 
   constructor({ memoryRepository }: ConstructorInput) {
     this.memoryRepository = memoryRepository;
   }
 
-  async saveMemory(memory: CreateMemoryInput): Promise<Memory> {
+  async saveMemory(input: CreateMemoryInput): Promise<Memory> {
+    const memory = {
+      id: input.id ?? uuidV4(),
+      userId: input.userId,
+      content: input.content,
+      embeddingVector: input.embeddingVector,
+      metadata: input.metadata,
+      createdAt: new Date().toISOString(),
+    };
+
     return this.memoryRepository.saveMemory(memory);
   }
 

@@ -1,16 +1,8 @@
 import { Memory } from './model';
 
 export interface Repository {
-  saveMemory(memory: CreateMemoryInput): Promise<Memory>;
+  saveMemory(memory: Memory): Promise<Memory>;
   findMemoriesByUserId(userId: string): Promise<Memory[]>;
   findRelevantMemories(userId: string, queryEmbedding: number[], k: number): Promise<Memory[]>;
   deleteMemory(memoryId: string): Promise<void>;
 }
-
-export type CreateMemoryInput = {
-  id?: string;
-  userId: string;
-  content: string;
-  embeddingVector: number[];
-  metadata?: Record<string, unknown>;
-};
