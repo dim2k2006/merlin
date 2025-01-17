@@ -5,7 +5,7 @@ type ConstructorInput = {
   apiKey: string;
 };
 
-class OpenAIEmbeddingProvider implements EmbeddingProviderInterface {
+class EmbeddingProviderOpenAI implements EmbeddingProviderInterface {
   private openai: OpenAI;
 
   constructor({ apiKey }: ConstructorInput) {
@@ -27,4 +27,4 @@ class OpenAIEmbeddingProvider implements EmbeddingProviderInterface {
   }
 }
 
-export default OpenAIEmbeddingProvider;
+export default EmbeddingProviderOpenAI;
