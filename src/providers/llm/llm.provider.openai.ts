@@ -1,5 +1,11 @@
 import OpenAI from 'openai';
-import { LlmProviderInterface, CreateChatCompletionInput, ChatCompletion } from './llm.provider.interface';
+import {
+  LlmProviderInterface,
+  CreateChatCompletionInput,
+  ChatCompletion,
+  BuildChatMessageInput,
+  ChatMessage,
+} from './llm.provider.interface';
 
 type ConstructorInput = {
   apiKey: string;
@@ -22,6 +28,13 @@ class LlmProviderOpenai implements LlmProviderInterface {
 
     return {
       content: response.choices[0].message.content,
+    };
+  }
+
+  buildChatMessage(input: BuildChatMessageInput): ChatMessage {
+    return {
+      role: input.role,
+      content: input.content,
     };
   }
 }

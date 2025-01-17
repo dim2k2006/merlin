@@ -2,7 +2,7 @@ import { Memory } from './memory.model';
 
 export interface MemoryService {
   saveMemory(input: CreateMemoryInput): Promise<Memory>;
-  findRelevantMemories(input: FindRelevantMemoriesInput): Promise<Memory[]>;
+  findRelevantMemories(input: FindRelevantMemoriesInput): Promise<string>;
   deleteMemory(memoryId: string): Promise<void>;
 }
 

@@ -1,5 +1,6 @@
 export interface LlmProviderInterface {
   createChatCompletion(input: CreateChatCompletionInput): Promise<ChatCompletion>;
+  buildChatMessage(input: BuildChatMessageInput): ChatMessage;
 }
 
 export type CreateChatCompletionInput = {
@@ -16,3 +17,8 @@ export type ChatCompletion = {
 };
 
 type Role = 'developer' | 'user';
+
+export type BuildChatMessageInput = {
+  role: Role;
+  content: string;
+};
