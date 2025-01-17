@@ -1,14 +1,14 @@
 import { v4 as uuidV4 } from 'uuid';
-import { Memory } from './model';
-import { Repository } from './repository';
-import { Service, CreateMemoryInput } from './service';
+import { Memory } from './memory.model';
+import { MemoryRepository } from './memory.repository';
+import { MemoryService, CreateMemoryInput } from './memory.service';
 
 type ConstructorInput = {
-  memoryRepository: Repository;
+  memoryRepository: MemoryRepository;
 };
 
-class ServiceImpl implements Service {
-  private memoryRepository: Repository;
+class MemoryServiceImpl implements MemoryService {
+  private memoryRepository: MemoryRepository;
 
   constructor({ memoryRepository }: ConstructorInput) {
     this.memoryRepository = memoryRepository;
@@ -40,4 +40,4 @@ class ServiceImpl implements Service {
   }
 }
 
-export default ServiceImpl;
+export default MemoryServiceImpl;
