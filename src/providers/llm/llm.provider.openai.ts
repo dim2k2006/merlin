@@ -36,10 +36,13 @@ class LlmProviderOpenai implements LlmProviderInterface {
   async identifyIntent(input: IdentifyIntentInput): Promise<Intent> {
     const messages = [
       this.buildChatMessage({
+        role: 'developer',
+        content:
+          'You are a intent classifier. Classify the intent of user message. Respond with either "save" or "retrieve".',
+      }),
+      this.buildChatMessage({
         role: 'user',
-        content: `Determine the intent of the following message. Respond with either "save" or "retrieve".
-
-Message: "${input.message}"`,
+        content: input.message,
       }),
     ];
 
