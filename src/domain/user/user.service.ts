@@ -9,6 +9,7 @@ export interface UserService {
 
 export type CreateUserInput = {
   id?: string;
-  name: string;
-  email: string;
+  externalId: string;
+  firstName: string;
+  lastName: string;
 };

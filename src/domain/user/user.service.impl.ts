@@ -17,8 +17,9 @@ class UserServiceImpl implements UserService {
   async createUser(input: CreateUserInput): Promise<User> {
     const user = {
       id: input.id ?? uuidV4(),
-      name: input.name,
-      email: input.email,
+      externalId: input.externalId,
+      firstName: input.firstName,
+      lastName: input.lastName,
       createdAt: new Date().toISOString(),
     };
 

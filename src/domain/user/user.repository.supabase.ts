@@ -19,8 +19,9 @@ class UserRepositorySupabase {
       .from('users')
       .insert({
         id: user.id,
-        name: user.name,
-        email: user.email,
+        external_id: user.externalId,
+        firstName: user.firstName,
+        lastName: user.lastName,
         created_at: user.createdAt,
       })
       .select();
@@ -50,8 +51,9 @@ class UserRepositorySupabase {
     const { data, error } = await this.supabase
       .from('users')
       .update({
-        name: user.name,
-        email: user.email,
+        external_id: user.externalId,
+        firstName: user.firstName,
+        lastName: user.lastName,
       })
       .eq('id', user.id)
       .select();
@@ -74,8 +76,9 @@ class UserRepositorySupabase {
   private transformUser(user: Database['public']['Tables']['users']['Row']): User {
     return {
       id: user.id,
-      name: user.name,
-      email: user.email,
+      externalId: user.external_id,
+      firstName: user.firstName,
+      lastName: user.lastName,
       createdAt: user.created_at,
     };
   }
