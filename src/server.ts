@@ -33,22 +33,20 @@ type CreateUserBody = {
   lastName?: string;
 };
 
+const CreateUserBodySchema = {
+  type: 'object',
+  required: ['externalId', 'firstName'],
+  properties: {
+    externalId: { type: 'string' },
+    firstName: { type: 'string' },
+    lastName: { type: 'string' },
+  },
+  additionalProperties: false,
+};
+
 server.post<{ Body: CreateUserBody; Reply: User | string }>(
   '/users',
-  {
-    schema: {
-      body: {
-        type: 'object',
-        required: ['externalId', 'firstName'],
-        properties: {
-          externalId: { type: 'string' },
-          firstName: { type: 'string' },
-          lastName: { type: 'string' },
-        },
-        additionalProperties: false,
-      },
-    },
-  },
+  { schema: { body: CreateUserBodySchema } },
   async (request, reply) => {
     try {
       const { externalId, firstName, lastName } = request.body;
@@ -73,12 +71,33 @@ type CreateMemoryBody = {
   content: string;
 };
 
-server.post<{ Body: CreateMemoryBody; Reply: Memory }>('/memories', async (request, reply) => {
-  const { userId, content } = request.body;
-  const memory = await memoryService.saveMemory({ userId, content });
+const CreateMemoryBodySchema = {
+  type: 'object',
+  required: ['userId', 'content'],
+  properties: {
+    userId: { type: 'string' },
+    content: { type: 'string' },
+  },
+  additionalProperties: false,
+};
 
-  reply.send(memory);
-});
+server.post<{ Body: CreateMemoryBody; Reply: Memory | string }>(
+  '/memories',
+  { schema: { body: CreateMemoryBodySchema } },
+  async (request, reply) => {
+    try {
+      const { userId, content } = request.body;
+
+      const user = await userService.getUserByIdOrExternalId(userId);
+
+      const memory = await memoryService.saveMemory({ userId: user.id, content });
+
+      reply.send(memory);
+    } catch (error) {
+      reply.status(500).send(error.message);
+    }
+  },
+);
 
 server.post<{ Body: { userId: string; content: string }; Reply: string }>('/memories/query', async (request, reply) => {
   const { userId, content } = request.body;
