@@ -99,12 +99,38 @@ server.post<{ Body: CreateMemoryBody; Reply: Memory | string }>(
   },
 );
 
-server.post<{ Body: { userId: string; content: string }; Reply: string }>('/memories/query', async (request, reply) => {
-  const { userId, content } = request.body;
-  const response = await memoryService.findRelevantMemories({ userId, content, k: 10 });
+type QueryMemoryBody = {
+  userId: string;
+  content: string;
+};
 
-  reply.send(response);
-});
+const QueryMemoryBodySchema = {
+  type: 'object',
+  required: ['userId', 'content'],
+  properties: {
+    userId: { type: 'string' },
+    content: { type: 'string' },
+  },
+  additionalProperties: false,
+};
+
+server.post<{ Body: QueryMemoryBody; Reply: string }>(
+  '/memories/query',
+  { schema: { body: QueryMemoryBodySchema } },
+  async (request, reply) => {
+    try {
+      const { userId, content } = request.body;
+
+      const user = await userService.getUserByIdOrExternalId(userId);
+
+      const response = await memoryService.findRelevantMemories({ userId: user.id, content, k: 10 });
+
+      reply.send(response);
+    } catch (error) {
+      reply.status(500).send(error.message);
+    }
+  },
+);
 
 server.get('/ping', async () => {
   return 'pong\n';
