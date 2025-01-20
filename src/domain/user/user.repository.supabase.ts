@@ -1,13 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../../types/database.types';
 import { User } from './user.model';
+import { UserRepository } from './user.repository';
 
 type ConstructorInput = {
   supabaseUrl: string;
   supabaseKey: string;
 };
 
-class UserRepositorySupabase {
+class UserRepositorySupabase implements UserRepository {
   private supabase: ReturnType<typeof createClient<Database>>;
 
   constructor({ supabaseUrl, supabaseKey }: ConstructorInput) {
@@ -33,7 +34,7 @@ class UserRepositorySupabase {
     return this.transformUser(data[0]);
   }
 
-  async findUserById(id: string): Promise<User | null> {
+  async getUserById(id: string): Promise<User | null> {
     const { data, error } = await this.supabase.from('users').select().eq('id', id);
 
     if (error) {
@@ -42,6 +43,20 @@ class UserRepositorySupabase {
 
     if (data.length === 0) {
       return null;
+    }
+
+    return this.transformUser(data[0]);
+  }
+
+  async getUserByExternalId(externalId: string): Promise<User> {
+    const { data, error } = await this.supabase.from('users').select().eq('external_id', externalId);
+
+    if (error) {
+      throw error;
+    }
+
+    if (data.length === 0) {
+      throw new Error(`Failed to find user with external ID: ${externalId}`);
     }
 
     return this.transformUser(data[0]);
