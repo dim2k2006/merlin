@@ -31,13 +31,17 @@ const memoryService = new MemoryServiceImpl({ memoryRepository, embeddingProvide
 const bot = new Bot(telegramBotToken);
 
 bot.command('start', async (ctx) => {
-  const user = await userService.getUserByIdOrExternalId(ctx.from.id.toString());
+  const externalId = ctx.from.id.toString();
 
-  if (!user) {
+  const isUserExist = await userService.isUserExist(externalId);
+
+  if (!isUserExist) {
     await ctx.reply('Please register first using /register command');
 
     return;
   }
+
+  const user = await userService.getUserByIdOrExternalId(externalId);
 
   await ctx.reply(`Hello, ${user.firstName}! Welcome to Merlin! 🧙‍♂️`);
 });
@@ -60,7 +64,6 @@ bot.command('register', async (ctx) => {
   await ctx.reply('You have been successfully registered!');
 });
 
-// handle all other messages
 bot.on('message', async (ctx) => {
   const user = await userService.getUserByIdOrExternalId(ctx.from.id.toString());
 
@@ -203,9 +206,15 @@ server.get('/ping', async () => {
 });
 
 server.post('/webhook', async (request, reply) => {
-  const handleUpdate = webhookCallback(bot, 'fastify');
+  try {
+    const handleUpdate = webhookCallback(bot, 'fastify');
 
-  await handleUpdate(request, reply);
+    await handleUpdate(request, reply);
+  } catch (error) {
+    console.error(error);
+
+    reply.status(500).send(error.message);
+  }
 });
 
 server.listen({ port: 8080 }, (err, address) => {
