@@ -28,13 +28,21 @@ const memoryService = new MemoryServiceImpl({ memoryRepository, embeddingProvide
 const server = fastify();
 
 type CreateUserBody = {
-  name: string;
-  email: string;
+  externalId: string;
+  firstName: string;
+  lastName?: string;
 };
 
-server.post<{ Body: CreateUserBody; Reply: User }>('/users', async (request, reply) => {
-  const { name, email } = request.body;
-  const user = await userService.createUser({ name, email });
+server.post<{ Body: CreateUserBody; Reply: User | string }>('/users', async (request, reply) => {
+  const { externalId, firstName, lastName } = request.body;
+
+  const isUserExist = await userService.isUserExist(externalId);
+
+  if (isUserExist) {
+    return reply.status(409).send('User already exists');
+  }
+
+  const user = await userService.createUser({ externalId, firstName, lastName });
 
   reply.send(user);
 });
