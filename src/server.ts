@@ -87,7 +87,7 @@ bot.on('message', async (ctx) => {
       await ctx.reply('Memory saved! 🧠');
     })
     .with('retrieve', () => async () => {
-      const response = await memoryService.findRelevantMemories({ userId: user.id, content: ctx.message.text, k: 10 });
+      const response = await memoryService.findRelevantMemories({ userId: user.id, content: ctx.message.text, k: 50 });
 
       await ctx.reply(response);
     })
