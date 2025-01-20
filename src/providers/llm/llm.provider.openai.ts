@@ -5,6 +5,8 @@ import {
   ChatCompletion,
   BuildChatMessageInput,
   ChatMessage,
+  IdentifyIntentInput,
+  Intent,
 } from './llm.provider.interface';
 
 type ConstructorInput = {
@@ -29,6 +31,27 @@ class LlmProviderOpenai implements LlmProviderInterface {
     return {
       content: response.choices[0].message.content,
     };
+  }
+
+  async identifyIntent(input: IdentifyIntentInput): Promise<Intent> {
+    const messages = [
+      this.buildChatMessage({
+        role: 'user',
+        content: `Determine the intent of the following message. Respond with either "save" or "retrieve".
+
+Message: "${input.message}"`,
+      }),
+    ];
+
+    const completion = await this.createChatCompletion({ messages });
+
+    const intent = completion.content.trim().toLowerCase();
+
+    if (intent.includes('save')) return 'save';
+
+    if (intent.includes('retrieve')) return 'retrieve';
+
+    return 'unknown';
   }
 
   buildChatMessage(input: BuildChatMessageInput): ChatMessage {

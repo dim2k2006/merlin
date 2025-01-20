@@ -1,5 +1,6 @@
 export interface LlmProviderInterface {
   createChatCompletion(input: CreateChatCompletionInput): Promise<ChatCompletion>;
+  identifyIntent(input: IdentifyIntentInput): Promise<Intent>;
   buildChatMessage(input: BuildChatMessageInput): ChatMessage;
 }
 
@@ -22,3 +23,9 @@ export type BuildChatMessageInput = {
   role: Role;
   content: string;
 };
+
+export type IdentifyIntentInput = {
+  message: string;
+};
+
+export type Intent = 'save' | 'retrieve' | 'unknown';
