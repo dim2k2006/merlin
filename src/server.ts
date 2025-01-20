@@ -1,5 +1,7 @@
 import { config } from 'dotenv';
 import fastify from 'fastify';
+import { webhookCallback, Bot } from 'grammy';
+import { match } from 'ts-pattern';
 import { UserRepositorySupabase, UserServiceImpl, User } from './domain/user';
 import { MemoryRepositoryPinecone, MemoryServiceImpl, Memory } from './domain/memory';
 import EmbeddingProviderOpenAI from './providers/embedding/embedding.provider.openai';
@@ -11,6 +13,7 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const pineconeApiKey = process.env.PINECONE_API_KEY;
 const openaiApiKey = process.env.OPENAI_API_KEY;
+const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
 
 const embeddingProvider = new EmbeddingProviderOpenAI({ apiKey: openaiApiKey });
 const llmProvider = new LlmProviderOpenai({ apiKey: openaiApiKey });
@@ -24,6 +27,69 @@ const memoryRepository = new MemoryRepositoryPinecone({
   indexName: 'merlin',
 });
 const memoryService = new MemoryServiceImpl({ memoryRepository, embeddingProvider, llmProvider });
+
+const bot = new Bot(telegramBotToken);
+
+bot.command('start', async (ctx) => {
+  const user = await userService.getUserByIdOrExternalId(ctx.from.id.toString());
+
+  if (!user) {
+    await ctx.reply('Please register first using /register command');
+
+    return;
+  }
+
+  await ctx.reply(`Hello, ${user.firstName}! Welcome to Merlin! 🧙‍♂️`);
+});
+
+bot.command('register', async (ctx) => {
+  const user = await userService.getUserByIdOrExternalId(ctx.from.id.toString());
+
+  if (user) {
+    await ctx.reply('You are already registered!');
+
+    return;
+  }
+
+  const firstName = ctx.from.first_name;
+  const lastName = ctx.from.last_name;
+  const externalId = ctx.from.id.toString();
+
+  await userService.createUser({ externalId, firstName, lastName });
+
+  await ctx.reply('You have been successfully registered!');
+});
+
+// handle all other messages
+bot.on('message', async (ctx) => {
+  const user = await userService.getUserByIdOrExternalId(ctx.from.id.toString());
+
+  if (!user) {
+    await ctx.reply('Please register first using /register command');
+
+    return;
+  }
+
+  const intent = await llmProvider.identifyIntent({ message: ctx.message.text });
+
+  const action = match(intent)
+    .with('save', () => async () => {
+      await memoryService.saveMemory({ userId: user.id, content: ctx.message.text });
+
+      await ctx.reply('Memory saved! 🧠');
+    })
+    .with('retrieve', () => async () => {
+      const response = await memoryService.findRelevantMemories({ userId: user.id, content: ctx.message.text, k: 10 });
+
+      await ctx.reply(response);
+    })
+    .with('unknown', () => async () => {
+      await ctx.reply('I do not understand what you are saying. 😔');
+    })
+    .exhaustive();
+
+  await action();
+});
 
 const server = fastify();
 
@@ -134,6 +200,12 @@ server.post<{ Body: QueryMemoryBody; Reply: string }>(
 
 server.get('/ping', async () => {
   return 'pong\n';
+});
+
+server.post('/webhook', async (request, reply) => {
+  const handleUpdate = webhookCallback(bot, 'fastify');
+
+  await handleUpdate(request, reply);
 });
 
 server.listen({ port: 8080 }, (err, address) => {
