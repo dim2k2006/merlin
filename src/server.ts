@@ -47,9 +47,11 @@ bot.command('start', async (ctx) => {
 });
 
 bot.command('register', async (ctx) => {
-  const user = await userService.getUserByIdOrExternalId(ctx.from.id.toString());
+  const externalId = ctx.from.id.toString();
 
-  if (user) {
+  const isUserExist = await userService.isUserExist(externalId);
+
+  if (isUserExist) {
     await ctx.reply('You are already registered!');
 
     return;
@@ -57,7 +59,6 @@ bot.command('register', async (ctx) => {
 
   const firstName = ctx.from.first_name;
   const lastName = ctx.from.last_name;
-  const externalId = ctx.from.id.toString();
 
   await userService.createUser({ externalId, firstName, lastName });
 
@@ -65,13 +66,17 @@ bot.command('register', async (ctx) => {
 });
 
 bot.on('message', async (ctx) => {
-  const user = await userService.getUserByIdOrExternalId(ctx.from.id.toString());
+  const externalId = ctx.from.id.toString();
 
-  if (!user) {
+  const isUserExist = await userService.isUserExist(externalId);
+
+  if (!isUserExist) {
     await ctx.reply('Please register first using /register command');
 
     return;
   }
+
+  const user = await userService.getUserByIdOrExternalId(ctx.from.id.toString());
 
   const intent = await llmProvider.identifyIntent({ message: ctx.message.text });
 
