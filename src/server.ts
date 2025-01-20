@@ -33,19 +33,40 @@ type CreateUserBody = {
   lastName?: string;
 };
 
-server.post<{ Body: CreateUserBody; Reply: User | string }>('/users', async (request, reply) => {
-  const { externalId, firstName, lastName } = request.body;
+server.post<{ Body: CreateUserBody; Reply: User | string }>(
+  '/users',
+  {
+    schema: {
+      body: {
+        type: 'object',
+        required: ['externalId', 'firstName'],
+        properties: {
+          externalId: { type: 'string' },
+          firstName: { type: 'string' },
+          lastName: { type: 'string' },
+        },
+        additionalProperties: false,
+      },
+    },
+  },
+  async (request, reply) => {
+    try {
+      const { externalId, firstName, lastName } = request.body;
 
-  const isUserExist = await userService.isUserExist(externalId);
+      const isUserExist = await userService.isUserExist(externalId);
 
-  if (isUserExist) {
-    return reply.status(409).send('User already exists');
-  }
+      if (isUserExist) {
+        return reply.status(409).send('User already exists');
+      }
 
-  const user = await userService.createUser({ externalId, firstName, lastName });
+      const user = await userService.createUser({ externalId, firstName, lastName });
 
-  reply.send(user);
-});
+      reply.send(user);
+    } catch (error) {
+      reply.status(500).send(error.message);
+    }
+  },
+);
 
 type CreateMemoryBody = {
   userId: string;
