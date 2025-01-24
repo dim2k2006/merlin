@@ -206,8 +206,10 @@ server.post<{ Body: QueryMemoryBody; Reply: string }>(
   },
 );
 
-server.get('/ping', async () => {
-  return 'pong\n';
+server.get('/alive', async () => {
+  const date = new Date().toISOString();
+
+  return `It is alive 🔥🔥🔥 Now: ${date} UTC`;
 });
 
 server.post('/webhook', async (request, reply) => {
