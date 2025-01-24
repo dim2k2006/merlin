@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import fastify from 'fastify';
 import { webhookCallback } from 'grammy';
+import Sentry from '@sentry/node';
 import { buildConfig, buildContainer } from './container';
 import buildBot from './bot';
 
@@ -10,9 +11,16 @@ const appConfig = buildConfig();
 
 const container = buildContainer(appConfig);
 
+Sentry.init({
+  dsn: appConfig.sentryDsn,
+  enabled: process.env.NODE_ENV === 'production',
+});
+
 const bot = buildBot(container);
 
 const server = fastify();
+
+Sentry.setupFastifyErrorHandler(server);
 
 server.get('/alive', async () => {
   const date = new Date().toISOString();

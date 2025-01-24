@@ -9,6 +9,7 @@ export function buildConfig(): Config {
   const pineconeApiKey = process.env.PINECONE_API_KEY;
   const openaiApiKey = process.env.OPENAI_API_KEY;
   const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
+  const sentryDsn = process.env.SENTRY_DSN;
 
   return {
     supabaseUrl,
@@ -19,6 +20,7 @@ export function buildConfig(): Config {
     openaiApiKey,
     telegramBotToken,
     allowedTelegramUserIds: [284307817, 263786736],
+    sentryDsn,
   };
 }
 
@@ -31,6 +33,7 @@ export type Config = {
   openaiApiKey: string;
   telegramBotToken: string;
   allowedTelegramUserIds: number[];
+  sentryDsn: string;
 };
 
 export function buildContainer(config: Config): Container {
