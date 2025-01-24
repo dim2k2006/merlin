@@ -28,6 +28,10 @@ server.get('/alive', async () => {
   return `It is alive 🔥🔥🔥 Now: ${date} UTC`;
 });
 
+server.get('/debug-sentry', function mainHandler() {
+  throw new Error('My first Sentry error!');
+});
+
 server.post('/webhook', async (request, reply) => {
   try {
     const handleUpdate = webhookCallback(bot, 'fastify');
