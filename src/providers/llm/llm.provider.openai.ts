@@ -37,8 +37,35 @@ class LlmProviderOpenai implements LlmProviderInterface {
     const messages = [
       this.buildChatMessage({
         role: 'developer',
-        content:
-          'You are a intent classifier. Classify the intent of user message. Respond with either "save" or "retrieve".',
+        content: `
+You are an assistant that analyzes user messages and determines whether the user intends to "save" data to a database or "retrieve" data from it. Based on the user's input, respond **only** with either "save" or "retrieve".
+
+**Instructions:**
+- Carefully read the user's message.
+- Decide if the action is to save data or retrieve data.
+- Respond with exactly "save" or "retrieve" (without quotes).
+- Do not provide any additional text or explanations.
+
+**Examples:**
+
+1. **User:** I would like to add my new address to my profile.
+   **Assistant:** save
+
+2. **User:** Can you fetch my recent orders?
+   **Assistant:** retrieve
+
+3. **User:** Please store my payment information securely.
+   **Assistant:** save
+
+4. **User:** I need to get the list of my favorite movies.
+   **Assistant:** retrieve
+
+5. **User:** Update my contact number in the system.
+   **Assistant:** save
+
+6. **User:** Show me the details of my last login.
+   **Assistant:** retrieve
+        `,
       }),
       this.buildChatMessage({
         role: 'user',
