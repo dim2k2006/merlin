@@ -32,7 +32,11 @@ server.post('/webhook', async (request, reply) => {
   }
 });
 
-server.listen({ port: 8080 }, (err, address) => {
+const envPort = process.env.PORT;
+
+const port = Number(envPort) || 8080;
+
+server.listen({ port }, (err, address) => {
   if (err) {
     console.error(err);
     process.exit(1);
