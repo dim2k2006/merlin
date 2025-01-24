@@ -53,25 +53,33 @@ function buildBot(container: Container) {
 
     const user = await container.userService.getUserByIdOrExternalId(ctx.from.id.toString());
 
-    const intent = await container.llmProvider.identifyIntent({ message: ctx.message.text });
+    const message = ctx.message.text;
+
+    if (!message) {
+      await ctx.reply('I do not understand what you are saying. 😔');
+
+      return;
+    }
+
+    const intent = await container.llmProvider.identifyIntent({ message });
 
     const action = match(intent)
       .with('save', () => async () => {
-        await container.memoryService.saveMemory({ userId: user.id, content: ctx.message.text });
+        await container.memoryService.saveMemory({ userId: user.id, content: message });
 
         await ctx.react('👍');
       })
       .with('retrieve', () => async () => {
         const response = await container.memoryService.findRelevantMemories({
           userId: user.id,
-          content: ctx.message.text,
+          content: message,
           k: 50,
         });
 
         await ctx.reply(response);
       })
       .with('unknown', () => async () => {
-        await ctx.reply('I do not understand what you are saying. 😔');
+        await ctx.reply('I do not understand your intent. 😔');
       })
       .exhaustive();
 
