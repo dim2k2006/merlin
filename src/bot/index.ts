@@ -40,11 +40,12 @@ function buildBot(container: Container) {
     await ctx.reply('You have been successfully registered!');
   });
 
+  // https://grammy.dev/guide/filter-queries#combine-with-and
   // bot.on('message:photo', auth, async (ctx) => {
   //   console.log('ctx', ctx);
   //
   //   console.log('photo', ctx.update.message.photo);
-  //   console.log('photo', ctx.update.message.caption);
+  //   console.log('caption', ctx.update.message.caption);
   //
   //   await ctx.reply('Debugging forward photo. 😔');
   //
