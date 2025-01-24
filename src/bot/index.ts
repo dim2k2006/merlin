@@ -40,7 +40,28 @@ function buildBot(container: Container) {
     await ctx.reply('You have been successfully registered!');
   });
 
-  bot.on('message', auth, async (ctx) => {
+  // bot.on('message:photo', auth, async (ctx) => {
+  //   console.log('ctx', ctx);
+  //
+  //   console.log('photo', ctx.update.message.photo);
+  //   console.log('photo', ctx.update.message.caption);
+  //
+  //   await ctx.reply('Debugging forward photo. 😔');
+  //
+  //   await ctx.replyWithPhoto(ctx.update.message.photo[0].file_id);
+  // });
+
+  // bot.on('message:photo').on(':forward_origin', auth, async (ctx) => {
+  //   console.log('ctx', ctx);
+  //
+  //   console.log('photo', ctx.update.message.photo);
+  //
+  //   await ctx.reply('Debugging forward photo. 😔');
+  //
+  //   await ctx.replyWithPhoto(ctx.update.message.photo[0].file_id);
+  // });
+
+  bot.on('message:text', auth, async (ctx) => {
     const externalId = ctx.from.id.toString();
 
     const isUserExist = await container.userService.isUserExist(externalId);
