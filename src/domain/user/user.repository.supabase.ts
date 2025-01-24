@@ -1,13 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../../types/database.types';
 import { User } from './user.model';
+import { UserRepository } from './user.repository';
 
 type ConstructorInput = {
   supabaseUrl: string;
   supabaseKey: string;
 };
 
-class UserRepositorySupabase {
+class UserRepositorySupabase implements UserRepository {
   private supabase: ReturnType<typeof createClient<Database>>;
 
   constructor({ supabaseUrl, supabaseKey }: ConstructorInput) {
@@ -19,8 +20,9 @@ class UserRepositorySupabase {
       .from('users')
       .insert({
         id: user.id,
-        name: user.name,
-        email: user.email,
+        external_id: user.externalId,
+        firstName: user.firstName,
+        lastName: user.lastName,
         created_at: user.createdAt,
       })
       .select();
@@ -32,7 +34,7 @@ class UserRepositorySupabase {
     return this.transformUser(data[0]);
   }
 
-  async findUserById(id: string): Promise<User | null> {
+  async getUserById(id: string): Promise<User | null> {
     const { data, error } = await this.supabase.from('users').select().eq('id', id);
 
     if (error) {
@@ -46,12 +48,27 @@ class UserRepositorySupabase {
     return this.transformUser(data[0]);
   }
 
+  async getUserByExternalId(externalId: string): Promise<User> {
+    const { data, error } = await this.supabase.from('users').select().eq('external_id', externalId);
+
+    if (error) {
+      throw error;
+    }
+
+    if (data.length === 0) {
+      throw new Error(`Failed to find user with external ID: ${externalId}`);
+    }
+
+    return this.transformUser(data[0]);
+  }
+
   async updateUser(user: User): Promise<User> {
     const { data, error } = await this.supabase
       .from('users')
       .update({
-        name: user.name,
-        email: user.email,
+        external_id: user.externalId,
+        firstName: user.firstName,
+        lastName: user.lastName,
       })
       .eq('id', user.id)
       .select();
@@ -74,8 +91,9 @@ class UserRepositorySupabase {
   private transformUser(user: Database['public']['Tables']['users']['Row']): User {
     return {
       id: user.id,
-      name: user.name,
-      email: user.email,
+      externalId: user.external_id,
+      firstName: user.firstName,
+      lastName: user.lastName,
       createdAt: user.created_at,
     };
   }

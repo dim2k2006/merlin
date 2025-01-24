@@ -1,7 +1,7 @@
 install: install-deps
 
 develop:
-	npm start
+	npm run dev
 
 install-deps:
 	npm install

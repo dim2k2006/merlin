@@ -2,21 +2,21 @@ import { v4 as uuidV4 } from 'uuid';
 import { Memory } from './memory.model';
 import { MemoryRepository } from './memory.repository';
 import { MemoryService, CreateMemoryInput, FindRelevantMemoriesInput } from './memory.service';
-import { EmbeddingProviderInterface } from '../../providers/embedding/embedding.provider.interface';
-import { LlmProviderInterface } from '../../providers/llm/llm.provider.interface';
+import { EmbeddingProvider } from '../../providers/embedding/embedding.provider';
+import { LlmProvider } from '../../providers/llm/llm.provider';
 
 type ConstructorInput = {
   memoryRepository: MemoryRepository;
-  embeddingProvider: EmbeddingProviderInterface;
-  llmProvider: LlmProviderInterface;
+  embeddingProvider: EmbeddingProvider;
+  llmProvider: LlmProvider;
 };
 
 class MemoryServiceImpl implements MemoryService {
   private memoryRepository: MemoryRepository;
 
-  private embeddingProvider: EmbeddingProviderInterface;
+  private embeddingProvider: EmbeddingProvider;
 
-  private llmProvider: LlmProviderInterface;
+  private llmProvider: LlmProvider;
 
   constructor({ memoryRepository, embeddingProvider, llmProvider }: ConstructorInput) {
     this.memoryRepository = memoryRepository;
@@ -66,12 +66,16 @@ class MemoryServiceImpl implements MemoryService {
       }),
       this.llmProvider.buildChatMessage({
         role: 'developer',
-        content: 'If you do not know the answer come up with some funny response.',
+        content: 'If you do not know the answer, simply state that you do not know without adding anything else.',
       }),
       this.llmProvider.buildChatMessage({
         role: 'developer',
         content:
           'Use the same language that user used in the prompt message. Translate matching fact to the required language if needed.',
+      }),
+      this.llmProvider.buildChatMessage({
+        role: 'developer',
+        content: `You have ${memories.length} memories available. In your response, please include the number of memories you used to answer the question. Even if you do not know the answer, you should still include this number.`,
       }),
       this.llmProvider.buildChatMessage({
         role: 'user',
