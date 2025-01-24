@@ -15,8 +15,7 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:ci": "vitest run --reporter=dot",
-    "lint": "eslint",
-    "uploadSourceMaps": "npx @sentry/wizard@latest -i sourcemaps --saas"
+    "lint": "eslint"
   },
   "repository": {
     "type": "git",
