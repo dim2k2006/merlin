@@ -38,12 +38,12 @@ class LlmProviderOpenai implements LlmProviderInterface {
       this.buildChatMessage({
         role: 'developer',
         content: `
-You are an assistant that analyzes user messages and determines whether the user intends to "save" data to a database or "retrieve" data from it. Based on the user's input, respond **only** with either "save" or "retrieve".
+You are an assistant that analyzes user messages to determine whether the user intends to "save" data to a database or "retrieve" data from it. Based on the user's input, respond **only** with either "save" or "retrieve".
 
 **Instructions:**
 - Carefully read the user's message.
-- Decide if the action is to save data or retrieve data.
-- Respond with exactly "save" or "retrieve" (without quotes).
+- If the user is requesting to retrieve or access data, respond with "retrieve".
+- In all other cases, assume the user wants to save the provided information and respond with "save".
 - Do not provide any additional text or explanations.
 
 **Examples:**
@@ -65,6 +65,18 @@ You are an assistant that analyzes user messages and determines whether the user
 
 6. **User:** Show me the details of my last login.
    **Assistant:** retrieve
+
+7. **User:** В Португалии в свободное от работы время можно серфить или записаться в танцевальную школу.
+   **Assistant:** save
+
+8. **User:** It's a sunny day today.
+   **Assistant:** save
+
+9. **User:** What are the best restaurants nearby?
+   **Assistant:** retrieve
+
+10. **User:** I feel like going for a walk.
+    **Assistant:** save
         `,
       }),
       this.buildChatMessage({
