@@ -2,8 +2,8 @@ import { config } from 'dotenv';
 import fastify from 'fastify';
 import { webhookCallback, Bot } from 'grammy';
 import { match } from 'ts-pattern';
-import { UserRepositorySupabase, UserServiceImpl, User } from './domain/user';
-import { MemoryRepositoryPinecone, MemoryServiceImpl, Memory } from './domain/memory';
+import { UserRepositorySupabase, UserServiceImpl } from './domain/user';
+import { MemoryRepositoryPinecone, MemoryServiceImpl } from './domain/memory';
 import EmbeddingProviderOpenAI from './providers/embedding/embedding.provider.openai';
 import LlmProviderOpenai from './providers/llm/llm.provider.openai';
 
@@ -101,111 +101,6 @@ bot.on('message', async (ctx) => {
 
 const server = fastify();
 
-type CreateUserBody = {
-  externalId: string;
-  firstName: string;
-  lastName?: string;
-};
-
-const CreateUserBodySchema = {
-  type: 'object',
-  required: ['externalId', 'firstName'],
-  properties: {
-    externalId: { type: 'string' },
-    firstName: { type: 'string' },
-    lastName: { type: 'string' },
-  },
-  additionalProperties: false,
-};
-
-server.post<{ Body: CreateUserBody; Reply: User | string }>(
-  '/users',
-  { schema: { body: CreateUserBodySchema } },
-  async (request, reply) => {
-    try {
-      const { externalId, firstName, lastName } = request.body;
-
-      const isUserExist = await userService.isUserExist(externalId);
-
-      if (isUserExist) {
-        return reply.status(409).send('User already exists');
-      }
-
-      const user = await userService.createUser({ externalId, firstName, lastName });
-
-      reply.send(user);
-    } catch (error) {
-      reply.status(500).send(error.message);
-    }
-  },
-);
-
-type CreateMemoryBody = {
-  userId: string;
-  content: string;
-};
-
-const CreateMemoryBodySchema = {
-  type: 'object',
-  required: ['userId', 'content'],
-  properties: {
-    userId: { type: 'string' },
-    content: { type: 'string' },
-  },
-  additionalProperties: false,
-};
-
-server.post<{ Body: CreateMemoryBody; Reply: Memory | string }>(
-  '/memories',
-  { schema: { body: CreateMemoryBodySchema } },
-  async (request, reply) => {
-    try {
-      const { userId, content } = request.body;
-
-      const user = await userService.getUserByIdOrExternalId(userId);
-
-      const memory = await memoryService.saveMemory({ userId: user.id, content });
-
-      reply.send(memory);
-    } catch (error) {
-      reply.status(500).send(error.message);
-    }
-  },
-);
-
-type QueryMemoryBody = {
-  userId: string;
-  content: string;
-};
-
-const QueryMemoryBodySchema = {
-  type: 'object',
-  required: ['userId', 'content'],
-  properties: {
-    userId: { type: 'string' },
-    content: { type: 'string' },
-  },
-  additionalProperties: false,
-};
-
-server.post<{ Body: QueryMemoryBody; Reply: string }>(
-  '/memories/query',
-  { schema: { body: QueryMemoryBodySchema } },
-  async (request, reply) => {
-    try {
-      const { userId, content } = request.body;
-
-      const user = await userService.getUserByIdOrExternalId(userId);
-
-      const response = await memoryService.findRelevantMemories({ userId: user.id, content, k: 10 });
-
-      reply.send(response);
-    } catch (error) {
-      reply.status(500).send(error.message);
-    }
-  },
-);
-
 server.get('/alive', async () => {
   const date = new Date().toISOString();
 
@@ -232,3 +127,114 @@ server.listen({ port: 8080 }, (err, address) => {
 
   console.log(`Server listening at ${address}`);
 });
+
+//////////////////////////////////////////
+
+// type QueryMemoryBody = {
+//   userId: string;
+//   content: string;
+// };
+//
+// const QueryMemoryBodySchema = {
+//   type: 'object',
+//   required: ['userId', 'content'],
+//   properties: {
+//     userId: { type: 'string' },
+//     content: { type: 'string' },
+//   },
+//   additionalProperties: false,
+// };
+//
+// server.post<{ Body: QueryMemoryBody; Reply: string }>(
+//   '/memories/query',
+//   { schema: { body: QueryMemoryBodySchema } },
+//   async (request, reply) => {
+//     try {
+//       const { userId, content } = request.body;
+//
+//       const user = await userService.getUserByIdOrExternalId(userId);
+//
+//       const response = await memoryService.findRelevantMemories({ userId: user.id, content, k: 10 });
+//
+//       reply.send(response);
+//     } catch (error) {
+//       reply.status(500).send(error.message);
+//     }
+//   },
+// );
+
+//////////////////////////////////////////
+
+// type CreateMemoryBody = {
+//   userId: string;
+//   content: string;
+// };
+//
+// const CreateMemoryBodySchema = {
+//   type: 'object',
+//   required: ['userId', 'content'],
+//   properties: {
+//     userId: { type: 'string' },
+//     content: { type: 'string' },
+//   },
+//   additionalProperties: false,
+// };
+//
+// server.post<{ Body: CreateMemoryBody; Reply: Memory | string }>(
+//   '/memories',
+//   { schema: { body: CreateMemoryBodySchema } },
+//   async (request, reply) => {
+//     try {
+//       const { userId, content } = request.body;
+//
+//       const user = await userService.getUserByIdOrExternalId(userId);
+//
+//       const memory = await memoryService.saveMemory({ userId: user.id, content });
+//
+//       reply.send(memory);
+//     } catch (error) {
+//       reply.status(500).send(error.message);
+//     }
+//   },
+// );
+
+//////////////////////////////////////////
+
+// type CreateUserBody = {
+//   externalId: string;
+//   firstName: string;
+//   lastName?: string;
+// };
+//
+// const CreateUserBodySchema = {
+//   type: 'object',
+//   required: ['externalId', 'firstName'],
+//   properties: {
+//     externalId: { type: 'string' },
+//     firstName: { type: 'string' },
+//     lastName: { type: 'string' },
+//   },
+//   additionalProperties: false,
+// };
+//
+// server.post<{ Body: CreateUserBody; Reply: User | string }>(
+//   '/users',
+//   { schema: { body: CreateUserBodySchema } },
+//   async (request, reply) => {
+//     try {
+//       const { externalId, firstName, lastName } = request.body;
+//
+//       const isUserExist = await userService.isUserExist(externalId);
+//
+//       if (isUserExist) {
+//         return reply.status(409).send('User already exists');
+//       }
+//
+//       const user = await userService.createUser({ externalId, firstName, lastName });
+//
+//       reply.send(user);
+//     } catch (error) {
+//       reply.status(500).send(error.message);
+//     }
+//   },
+// );
