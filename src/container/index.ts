@@ -18,6 +18,7 @@ export function buildConfig(): Config {
     pineconeIndexName: 'merlin',
     openaiApiKey,
     telegramBotToken,
+    allowedTelegramUserIds: [284307817, 263786736],
   };
 }
 
@@ -29,6 +30,7 @@ export type Config = {
   pineconeIndexName: string;
   openaiApiKey: string;
   telegramBotToken: string;
+  allowedTelegramUserIds: number[];
 };
 
 export function buildContainer(config: Config): Container {

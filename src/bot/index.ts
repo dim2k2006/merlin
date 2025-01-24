@@ -1,11 +1,11 @@
-import { Bot } from 'grammy';
+import { Bot, Context, NextFunction } from 'grammy';
 import { match } from 'ts-pattern';
 import { Container } from '../container';
 
 function buildBot(container: Container) {
   const bot = new Bot(container.config.telegramBotToken);
 
-  bot.command('start', async (ctx) => {
+  bot.command('start', auth, async (ctx) => {
     const externalId = ctx.from.id.toString();
 
     const isUserExist = await container.userService.isUserExist(externalId);
@@ -21,7 +21,7 @@ function buildBot(container: Container) {
     await ctx.reply(`Hello, ${user.firstName}! Welcome to Merlin! 🧙‍♂️`);
   });
 
-  bot.command('register', async (ctx) => {
+  bot.command('register', auth, async (ctx) => {
     const externalId = ctx.from.id.toString();
 
     const isUserExist = await container.userService.isUserExist(externalId);
@@ -40,7 +40,7 @@ function buildBot(container: Container) {
     await ctx.reply('You have been successfully registered!');
   });
 
-  bot.on('message', async (ctx) => {
+  bot.on('message', auth, async (ctx) => {
     const externalId = ctx.from.id.toString();
 
     const isUserExist = await container.userService.isUserExist(externalId);
@@ -79,6 +79,22 @@ function buildBot(container: Container) {
   });
 
   return bot;
+
+  async function auth(ctx: Context, next: NextFunction): Promise<void> {
+    if (!ctx.from) {
+      await ctx.reply('You are not allowed to use this command.');
+
+      return;
+    }
+
+    if (!container.config.allowedTelegramUserIds.includes(ctx.from.id)) {
+      await ctx.reply('You are not allowed to use this command.');
+
+      return;
+    }
+
+    await next();
+  }
 }
 
 export default buildBot;
