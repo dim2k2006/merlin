@@ -1,19 +1,19 @@
 import OpenAI from 'openai';
 import {
-  LlmProviderInterface,
+  LlmProvider,
   CreateChatCompletionInput,
   ChatCompletion,
   BuildChatMessageInput,
   ChatMessage,
   IdentifyIntentInput,
   Intent,
-} from './llm.provider.interface';
+} from './llm.provider';
 
 type ConstructorInput = {
   apiKey: string;
 };
 
-class LlmProviderOpenai implements LlmProviderInterface {
+class LlmProviderOpenai implements LlmProvider {
   private openai: OpenAI;
 
   constructor({ apiKey }: ConstructorInput) {

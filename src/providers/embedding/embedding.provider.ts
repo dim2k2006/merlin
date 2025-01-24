@@ -1,4 +1,4 @@
-export interface EmbeddingProviderInterface {
+export interface EmbeddingProvider {
   createEmbedding(input: CreateEmbeddingInput): Promise<Embedding>;
 }
 

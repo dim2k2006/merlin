@@ -1,4 +1,4 @@
-export interface LlmProviderInterface {
+export interface LlmProvider {
   createChatCompletion(input: CreateChatCompletionInput): Promise<ChatCompletion>;
   identifyIntent(input: IdentifyIntentInput): Promise<Intent>;
   buildChatMessage(input: BuildChatMessageInput): ChatMessage;
