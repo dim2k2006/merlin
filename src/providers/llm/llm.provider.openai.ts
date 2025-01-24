@@ -77,6 +77,9 @@ You are an assistant that analyzes user messages to determine whether the user i
 
 10. **User:** I feel like going for a walk.
     **Assistant:** save
+
+11. **User:**  Как ходить в босоногой обуви?
+    **Assistant:** retrieve
         `,
       }),
       this.buildChatMessage({
