@@ -1,7 +1,7 @@
 import { config } from 'dotenv';
 import fastify from 'fastify';
 import { webhookCallback } from 'grammy';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import { buildConfig, buildContainer } from './container';
 import buildBot from './bot';
 
