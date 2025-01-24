@@ -66,7 +66,7 @@ class MemoryServiceImpl implements MemoryService {
       }),
       this.llmProvider.buildChatMessage({
         role: 'developer',
-        content: 'If you do not know the answer come up with some funny response.',
+        content: 'If you do not know the answer come up with some funny short response.',
       }),
       this.llmProvider.buildChatMessage({
         role: 'developer',
