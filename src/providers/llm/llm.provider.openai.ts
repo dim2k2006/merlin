@@ -26,6 +26,8 @@ class LlmProviderOpenai implements LlmProvider {
     const response = await this.openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: input.messages,
+      functions: input.functions,
+      function_call: 'auto',
     });
 
     return {

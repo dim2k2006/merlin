@@ -6,11 +6,22 @@ export interface LlmProvider {
 
 export type CreateChatCompletionInput = {
   messages: ChatMessage[];
+  functions?: FunctionMetadata[];
 };
 
 export type ChatMessage = {
   role: Role;
   content: string;
+};
+
+export type FunctionMetadata = {
+  name: string;
+  description: string;
+  parameters: {
+    type: string;
+    properties: Record<string, any>;
+    required: string[];
+  };
 };
 
 export type ChatCompletion = {
