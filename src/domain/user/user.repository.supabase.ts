@@ -91,9 +91,9 @@ class UserRepositorySupabase implements UserRepository {
   private transformUser(user: Database['public']['Tables']['users']['Row']): User {
     return {
       id: user.id,
-      externalId: user.external_id,
+      externalId: user.external_id ?? '',
       firstName: user.firstName,
-      lastName: user.lastName,
+      lastName: user.lastName ?? '',
       createdAt: user.created_at,
     };
   }
