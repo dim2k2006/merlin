@@ -59,7 +59,7 @@ type BaseMeasurement = {
   userId: string;
   parameterId: string;
   timestamp: string;
-  notes: string;
+  notes?: string;
   createdAt: string;
   updatedAt: string;
 };
