@@ -34,7 +34,7 @@ class UserRepositorySupabase implements UserRepository {
     return this.transformUser(data[0]);
   }
 
-  async getUserById(id: string): Promise<User | null> {
+  async getUserById(id: string): Promise<User> {
     const { data, error } = await this.supabase.from('users').select().eq('id', id);
 
     if (error) {
@@ -42,7 +42,7 @@ class UserRepositorySupabase implements UserRepository {
     }
 
     if (data.length === 0) {
-      return null;
+      throw new Error(`Failed to find user with ID: ${id}`);
     }
 
     return this.transformUser(data[0]);
