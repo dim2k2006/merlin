@@ -1,6 +1,7 @@
 import { EmbeddingProvider, EmbeddingProviderOpenAI } from '../providers/embedding';
 import { LlmProvider, LlmProviderOpenai } from '../providers/llm';
 import { AgentProvider, AgentProviderLangGraph } from '../providers/agent';
+import { ParameterProvider, ParameterProviderCorrelate } from '../providers/parameter';
 import { UserRepositorySupabase, UserService, UserServiceImpl } from '../domain/user';
 import { MemoryRepositoryPinecone, MemoryService, MemoryServiceImpl } from '../domain/memory';
 
@@ -65,7 +66,9 @@ export function buildContainer(config: Config): Container {
   });
   const memoryService = new MemoryServiceImpl({ memoryRepository, embeddingProvider, llmProvider });
 
-  const agentProvider = new AgentProviderLangGraph({ apiKey: config.openaiApiKey, memoryService });
+  const parameterProvider = new ParameterProviderCorrelate({ apiKey: config.correlateApiKey });
+
+  const agentProvider = new AgentProviderLangGraph({ apiKey: config.openaiApiKey, memoryService, parameterProvider });
 
   return {
     config,
@@ -74,6 +77,7 @@ export function buildContainer(config: Config): Container {
     embeddingProvider,
     llmProvider,
     agentProvider,
+    parameterProvider,
   };
 }
 
@@ -84,4 +88,5 @@ export type Container = {
   embeddingProvider: EmbeddingProvider;
   llmProvider: LlmProvider;
   agentProvider: AgentProvider;
+  parameterProvider: ParameterProvider;
 };

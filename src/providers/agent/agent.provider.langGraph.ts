@@ -4,6 +4,7 @@ import { MemorySaver } from '@langchain/langgraph';
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { MemoryService } from '../../domain/memory';
+import { ParameterProvider } from '../../shared/parameter.types';
 import {
   AgentProvider,
   AgentInvokeInput,
@@ -16,6 +17,7 @@ import {
 type ConstructorInput = {
   apiKey: string;
   memoryService: MemoryService;
+  parameterProvider: ParameterProvider;
 };
 
 class AgentProviderLangGraph implements AgentProvider {
