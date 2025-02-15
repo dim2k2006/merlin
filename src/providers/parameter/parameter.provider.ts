@@ -6,7 +6,7 @@ export interface ParameterProvider {
   listMeasurementsByParameter(parameterId: string): Promise<Measurement[]>;
 }
 
-type CreateParameterInput = {
+export type CreateParameterInput = {
   userId: string;
   name: string;
   description: string;
@@ -14,7 +14,7 @@ type CreateParameterInput = {
   unit: string;
 };
 
-type Parameter = {
+export type Parameter = {
   id: string;
   userId: string;
   name: string;
@@ -27,7 +27,7 @@ type Parameter = {
 
 type ParameterType = 'float';
 
-type CreateMeasurementInput = {
+export type CreateMeasurementInput = {
   parameterId: string;
   notes: string;
   value: unknown;
@@ -35,7 +35,7 @@ type CreateMeasurementInput = {
 
 type MeasurementType = 'float';
 
-type Measurement = MeasurementFloat;
+export type Measurement = MeasurementFloat;
 
 type MeasurementFloat = BaseMeasurement & {
   type: 'float';
