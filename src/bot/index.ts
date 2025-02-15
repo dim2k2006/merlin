@@ -1,11 +1,18 @@
 import { Bot, Context, NextFunction } from 'grammy';
+import get from 'lodash/get';
 import { Container } from '../container';
 
 function buildBot(container: Container) {
   const bot = new Bot(container.config.telegramBotToken);
 
   bot.command('start', auth, async (ctx) => {
-    const externalId = ctx.from.id.toString();
+    const externalId = ctx.from?.id.toString();
+
+    if (!externalId) {
+      await ctx.reply('I failed to identify you. Please try again.');
+
+      return;
+    }
 
     const isUserExist = await container.userService.isUserExist(externalId);
 
@@ -21,7 +28,13 @@ function buildBot(container: Container) {
   });
 
   bot.command('register', auth, async (ctx) => {
-    const externalId = ctx.from.id.toString();
+    const externalId = ctx.from?.id.toString();
+
+    if (!externalId) {
+      await ctx.reply('I failed to identify you. Please try again.');
+
+      return;
+    }
 
     const isUserExist = await container.userService.isUserExist(externalId);
 
@@ -31,8 +44,8 @@ function buildBot(container: Container) {
       return;
     }
 
-    const firstName = ctx.from.first_name;
-    const lastName = ctx.from.last_name;
+    const firstName = ctx.from?.first_name ?? '';
+    const lastName = ctx.from?.last_name ?? '';
 
     await container.userService.createUser({ externalId, firstName, lastName });
 
@@ -84,7 +97,7 @@ Please generate a clear, concise answer to the user's query. At the end of your 
 
       await ctx.reply(replyMessage.content);
     } catch (error) {
-      const errorMessage = error.message || 'An error occurred.';
+      const errorMessage = get(error, 'message', 'An error occurred.');
 
       const agentResponse = await container.agentProvider.invoke(
         {
