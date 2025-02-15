@@ -37,7 +37,7 @@ const BaseMeasurementSchema = z.object({
   userId: z.string(),
   parameterId: z.string(),
   timestamp: z.string(),
-  notes: z.string(),
+  notes: z.string().optional(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
