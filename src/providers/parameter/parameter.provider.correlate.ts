@@ -6,6 +6,7 @@ import {
   Parameter,
   CreateMeasurementInput,
   Measurement,
+  User,
 } from './parameter.provider';
 import { handleAxiosError } from '../../utils/axios';
 
@@ -14,8 +15,15 @@ const ParameterResponseSchema = z.object({
   userId: z.string(),
   name: z.string(),
   description: z.string(),
-  dataType: z.union([z.literal('float'), z.literal('boolean')]),
+  dataType: z.enum(['float']),
   unit: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+const UserResponseSchema = z.object({
+  id: z.string(),
+  externalId: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -41,6 +49,20 @@ class ParameterProviderCorrelate implements ParameterProvider {
     this.client = axios.create({
       baseURL,
     });
+  }
+
+  async getUserByExternalID(externalId: string): Promise<User> {
+    const url = `/api/users/external/${externalId}`;
+
+    try {
+      const response = await this.client.get(url);
+
+      const result = UserResponseSchema.parse(response.data);
+
+      return result;
+    } catch (error) {
+      return handleAxiosError(error, `${this.baseUrl}${url}`);
+    }
   }
 
   async createParameter(input: CreateParameterInput): Promise<Parameter> {
