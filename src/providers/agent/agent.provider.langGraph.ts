@@ -27,7 +27,7 @@ class AgentProviderLangGraph implements AgentProvider {
     this.memoryService = memoryService;
 
     const agentTools = this.buildTools();
-    const agentModel = new ChatOpenAI({ temperature: 0, apiKey });
+    const agentModel = new ChatOpenAI({ model: 'gpt-4o-mini', temperature: 0, apiKey });
     const agentCheckpointer = new MemorySaver();
 
     this.agent = createReactAgent({
