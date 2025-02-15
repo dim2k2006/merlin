@@ -29,7 +29,7 @@ class LlmProviderOpenai implements LlmProvider {
     });
 
     return {
-      content: response.choices[0].message.content,
+      content: response.choices[0].message.content ?? '',
     };
   }
 
