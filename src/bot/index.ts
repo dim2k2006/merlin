@@ -90,11 +90,12 @@ function buildBot(container: Container) {
           messages: [
             container.agentProvider.buildChatMessage({
               role: 'developer',
-              content: `User tried to send: ${message} but an error occurred: ${errorMessage}. Try to summarize the error message and provide a solution.`,
-            }),
-            container.agentProvider.buildChatMessage({
-              role: 'developer',
-              content: `Error message: ${errorMessage}`,
+              content: `The system encountered an error while processing the user's request.
+User Info: id=${user.id}, externalId=${user.externalId}, firstName=${user.firstName}, lastName=${user.lastName}.
+User's message: "${message}".
+Error details: "${errorMessage}".
+Please provide a clear, concise explanation of the error in plain language that a non-technical user can understand.
+Also, suggest what the user might do next, such as trying again later or contacting support if the problem persists.`,
             }),
           ],
         },
