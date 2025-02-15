@@ -154,7 +154,37 @@ class AgentProviderLangGraph implements AgentProvider {
       },
     });
 
-    return [saveMemoryTool, retrieveMemoriesTool, getParameterUserTool, createParameterTool];
+    const listMyParametersTool = new DynamicStructuredTool({
+      name: 'listMyParameters',
+      description:
+        'Lists all parameters for the current user from the parameter service. ' +
+        'This tool is restricted to the current user only.' +
+        "Expects a JSON input with 'userId'.",
+      schema: z.object({
+        userId: z.string().describe('The unique identifier for the user.'),
+      }),
+      func: async ({ userId }: { userId: string }) => {
+        try {
+          const parameterUser = await this.parameterProvider.getUserByExternalId(userId);
+
+          const parameters = await this.parameterProvider.listParametersByUser(parameterUser.id);
+
+          if (parameters.length === 0) {
+            return 'No parameters found for your account.';
+          }
+
+          const formattedList = parameters
+            .map((param) => `ID: ${param.id}, Name: ${param.name}, DataType: ${param.dataType}, Unit: ${param.unit}`)
+            .join('\n');
+
+          return `Your parameters:\n${formattedList}`;
+        } catch (error) {
+          return `Error listing your parameters: ${error}`;
+        }
+      },
+    });
+
+    return [saveMemoryTool, retrieveMemoriesTool, getParameterUserTool, createParameterTool, listMyParametersTool];
   }
 }
 
