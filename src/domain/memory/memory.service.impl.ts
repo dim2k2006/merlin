@@ -2,8 +2,8 @@ import { v4 as uuidV4 } from 'uuid';
 import { Memory } from './memory.model';
 import { MemoryRepository } from './memory.repository';
 import { MemoryService, CreateMemoryInput, FindRelevantMemoriesInput } from './memory.service';
-import { EmbeddingProvider } from '../../providers/embedding/embedding.provider';
-import { LlmProvider } from '../../providers/llm/llm.provider';
+import { LlmProvider } from '../../shared/llm.types';
+import { EmbeddingProvider } from '../../shared/embedding.types';
 
 type ConstructorInput = {
   memoryRepository: MemoryRepository;

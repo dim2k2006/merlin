@@ -1,5 +1,4 @@
 import { Bot, Context, NextFunction } from 'grammy';
-import { match } from 'ts-pattern';
 import { Container } from '../container';
 
 function buildBot(container: Container) {
@@ -61,29 +60,54 @@ function buildBot(container: Container) {
       return;
     }
 
-    const intent = await container.llmProvider.identifyIntent({ message });
+    const threadId = ctx.from.id.toString() || 'default-thread';
 
-    const action = match(intent)
-      .with('save', () => async () => {
-        await container.memoryService.saveMemory({ userId: user.id, content: message });
+    try {
+      const agentResponse = await container.agentProvider.invoke(
+        {
+          messages: [
+            container.agentProvider.buildChatMessage({
+              role: 'developer',
+              content: `User Info: id=${user.id}, externalId=${user.externalId}, firstName=${user.firstName}, lastName=${user.lastName}.
+Please generate a clear, concise answer to the user's query. At the end of your response, add a line "Tools Used:" followed by the names of any tools that were utilized. If no tool was used, output "none".`,
+            }),
+            container.agentProvider.buildChatMessage({
+              role: 'user',
+              content: message,
+            }),
+          ],
+        },
+        { threadId },
+      );
 
-        await ctx.react('👍');
-      })
-      .with('retrieve', () => async () => {
-        const response = await container.memoryService.findRelevantMemories({
-          userId: user.id,
-          content: message,
-          k: 50,
-        });
+      const replyMessage = agentResponse.messages[agentResponse.messages.length - 1];
 
-        await ctx.reply(response);
-      })
-      .with('unknown', () => async () => {
-        await ctx.reply('I do not understand your intent. 😔');
-      })
-      .exhaustive();
+      await ctx.reply(replyMessage.content);
+    } catch (error) {
+      const errorMessage = error.message || 'An error occurred.';
 
-    await action();
+      const agentResponse = await container.agentProvider.invoke(
+        {
+          messages: [
+            container.agentProvider.buildChatMessage({
+              role: 'developer',
+              content: `The system encountered an error while processing the user's request.
+User Info: id=${user.id}, externalId=${user.externalId}, firstName=${user.firstName}, lastName=${user.lastName}.
+User's message: "${message}".
+Error details: "${errorMessage}".
+Please provide a clear, concise explanation of the error in plain language that a non-technical user can understand.
+Also, suggest what the user might do next, such as trying again later or contacting support if the problem persists.
+At the end, add a line "Tools Used:" and list any tools that were involved in handling this request. If no tools were used, output "none".`,
+            }),
+          ],
+        },
+        { threadId },
+      );
+
+      const replyMessage = agentResponse.messages[agentResponse.messages.length - 1];
+
+      await ctx.reply(replyMessage.content);
+    }
   });
 
   return bot;

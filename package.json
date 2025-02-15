@@ -29,6 +29,9 @@
   },
   "homepage": "https://github.com/dim2k2006/merlin#readme",
   "dependencies": {
+    "@langchain/core": "^0.3.40",
+    "@langchain/langgraph": "^0.2.46",
+    "@langchain/openai": "^0.4.4",
     "@pinecone-database/pinecone": "^4.1.0",
     "@sentry/node": "^8.51.0",
     "@supabase/supabase-js": "^2.47.16",
