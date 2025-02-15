@@ -25,8 +25,12 @@ class AgentProviderLangGraph implements AgentProvider {
 
   private memoryService: MemoryService;
 
-  constructor({ apiKey, memoryService }: ConstructorInput) {
+  private parameterProvider: ParameterProvider;
+
+  constructor({ apiKey, memoryService, parameterProvider }: ConstructorInput) {
     this.memoryService = memoryService;
+
+    this.parameterProvider = parameterProvider;
 
     const agentTools = this.buildTools();
     const agentModel = new ChatOpenAI({ model: 'gpt-4o-mini', temperature: 0, apiKey });
@@ -96,7 +100,26 @@ class AgentProviderLangGraph implements AgentProvider {
       },
     });
 
-    return [saveMemoryTool, retrieveMemoriesTool];
+    const getParameterUserByExternalIdTool = new DynamicStructuredTool({
+      name: 'getUserByExternalId',
+      description:
+        'Retrieves a user from the parameter service by external ID. ' +
+        "Expects a JSON input with an 'externalId' property (e.g., the Telegram user ID).",
+      schema: z.object({
+        externalId: z.string().describe('The external ID to look up in the parameters service.'),
+      }),
+      func: async ({ externalId }: { externalId: string }) => {
+        try {
+          const user = await this.parameterProvider.getUserByExternalId(externalId);
+          // Format the response in a clear, concise way.
+          return `User retrieved successfully:\nID: ${user.id}\nExternalID: ${user.externalId}\nCreated At: ${user.createdAt}\nUpdated At: ${user.updatedAt}`;
+        } catch (error) {
+          return `Error retrieving user: ${error}`;
+        }
+      },
+    });
+
+    return [saveMemoryTool, retrieveMemoriesTool, getParameterUserByExternalIdTool];
   }
 }
 
