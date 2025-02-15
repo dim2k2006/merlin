@@ -137,7 +137,7 @@ class ParameterProviderCorrelate implements ParameterProvider {
   }
 
   async listMeasurementsByParameter(parameterId: string): Promise<Measurement[]> {
-    const url = `/api/measurements/parameter/${parameterId}}`;
+    const url = `/api/measurements/parameter/${parameterId}`;
 
     try {
       const response = await this.client.get(url);
