@@ -2,7 +2,6 @@ import { config } from 'dotenv';
 import fastify from 'fastify';
 import { webhookCallback } from 'grammy';
 import * as Sentry from '@sentry/node';
-import get from 'lodash/get';
 import { buildConfig, buildContainer } from './container';
 import buildBot from './bot';
 
@@ -41,7 +40,7 @@ server.post('/webhook', async (request, reply) => {
   } catch (error) {
     console.error(error);
 
-    reply.status(500).send(get(error, 'message', 'Internal server error'));
+    reply.status(200).send('ok');
   }
 });
 
