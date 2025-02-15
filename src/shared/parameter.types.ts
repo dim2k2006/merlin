@@ -40,7 +40,7 @@ type ParameterType = 'float';
 
 export type CreateMeasurementInput = {
   parameterId: string;
-  notes: string;
+  notes?: string;
   value: unknown;
 };
 

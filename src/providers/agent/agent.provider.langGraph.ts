@@ -189,13 +189,13 @@ class AgentProviderLangGraph implements AgentProvider {
       description:
         'Creates a new measurement for a specified parameter. ' +
         'This tool should be used only to record a new measurement value for an existing parameter. ' +
-        "Expects a JSON input with 'parameterId', 'notes', and 'value'.",
+        "Expects a JSON input with 'parameterId', 'notes' (optional), and 'value'.",
       schema: z.object({
         parameterId: z.string().describe('The ID of the parameter for which the measurement is recorded.'),
-        notes: z.string().describe('Any notes or details about the measurement.'),
+        notes: z.string().optional().describe('Any notes or details about the measurement.'),
         value: z.number().describe('The measurement value (a number).'),
       }),
-      func: async (input: { parameterId: string; notes: string; value: number }) => {
+      func: async (input: { parameterId: string; notes?: string; value: number }) => {
         try {
           const measurement = await this.parameterProvider.createMeasurement(input);
 
