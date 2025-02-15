@@ -1,10 +1,19 @@
 export interface ParameterProvider {
+  getUserByExternalID(externalId: string): Promise<User>;
+
   createParameter(input: CreateParameterInput): Promise<Parameter>;
   listParametersByUser(userId: string): Promise<Parameter[]>;
 
   createMeasurement(input: CreateMeasurementInput): Promise<Measurement>;
   listMeasurementsByParameter(parameterId: string): Promise<Measurement[]>;
 }
+
+export type User = {
+  id: string;
+  externalId: string;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export type CreateParameterInput = {
   userId: string;
