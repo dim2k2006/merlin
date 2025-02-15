@@ -1,16 +1,27 @@
 import { EmbeddingProvider, EmbeddingProviderOpenAI } from '../providers/embedding';
 import { LlmProvider, LlmProviderOpenai } from '../providers/llm';
 import { AgentProvider, AgentProviderLangGraph } from '../providers/agent';
+import { ParameterProvider, ParameterProviderCorrelate } from '../providers/parameter';
+import { ChatProvider, ChatProviderTelegram } from '../providers/chat';
 import { UserRepositorySupabase, UserService, UserServiceImpl } from '../domain/user';
 import { MemoryRepositoryPinecone, MemoryService, MemoryServiceImpl } from '../domain/memory';
 
+function getEnvVariable(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing environment variable: ${name}`);
+  }
+  return value;
+}
+
 export function buildConfig(): Config {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_KEY;
-  const pineconeApiKey = process.env.PINECONE_API_KEY;
-  const openaiApiKey = process.env.OPENAI_API_KEY;
-  const telegramBotToken = process.env.TELEGRAM_BOT_TOKEN;
-  const sentryDsn = process.env.SENTRY_DSN;
+  const supabaseUrl = getEnvVariable('SUPABASE_URL');
+  const supabaseKey = getEnvVariable('SUPABASE_KEY');
+  const pineconeApiKey = getEnvVariable('PINECONE_API_KEY');
+  const openaiApiKey = getEnvVariable('OPENAI_API_KEY');
+  const telegramBotToken = getEnvVariable('TELEGRAM_BOT_TOKEN');
+  const sentryDsn = getEnvVariable('SENTRY_DSN');
+  const correlateApiKey = getEnvVariable('CORRELATE_API_KEY');
 
   return {
     supabaseUrl,
@@ -22,6 +33,7 @@ export function buildConfig(): Config {
     telegramBotToken,
     allowedTelegramUserIds: [284307817, 263786736],
     sentryDsn,
+    correlateApiKey,
   };
 }
 
@@ -35,6 +47,7 @@ export type Config = {
   telegramBotToken: string;
   allowedTelegramUserIds: number[];
   sentryDsn: string;
+  correlateApiKey: string;
 };
 
 export function buildContainer(config: Config): Container {
@@ -54,7 +67,11 @@ export function buildContainer(config: Config): Container {
   });
   const memoryService = new MemoryServiceImpl({ memoryRepository, embeddingProvider, llmProvider });
 
-  const agentProvider = new AgentProviderLangGraph({ apiKey: config.openaiApiKey, memoryService });
+  const parameterProvider = new ParameterProviderCorrelate({ apiKey: config.correlateApiKey });
+
+  const agentProvider = new AgentProviderLangGraph({ apiKey: config.openaiApiKey, memoryService, parameterProvider });
+
+  const chatProvider = new ChatProviderTelegram({ botToken: config.telegramBotToken });
 
   return {
     config,
@@ -63,6 +80,8 @@ export function buildContainer(config: Config): Container {
     embeddingProvider,
     llmProvider,
     agentProvider,
+    parameterProvider,
+    chatProvider,
   };
 }
 
@@ -73,4 +92,6 @@ export type Container = {
   embeddingProvider: EmbeddingProvider;
   llmProvider: LlmProvider;
   agentProvider: AgentProvider;
+  parameterProvider: ParameterProvider;
+  chatProvider: ChatProvider;
 };
