@@ -206,6 +206,37 @@ class AgentProviderLangGraph implements AgentProvider {
       },
     });
 
+    const listMeasurementsByParameterTool = new DynamicStructuredTool({
+      name: 'listMeasurementsByParameter',
+      description:
+        'Lists all measurements for a given parameter. ' +
+        'This tool is used to retrieve all recorded measurement values for a specified parameter. ' +
+        "Expects a JSON input with a 'parameterId' property.",
+      schema: z.object({
+        parameterId: z.string().describe('The ID of the parameter whose measurements should be listed.'),
+      }),
+      func: async ({ parameterId }: { parameterId: string }) => {
+        try {
+          const measurements = await this.parameterProvider.listMeasurementsByParameter(parameterId);
+
+          if (measurements.length === 0) {
+            return `No measurements found for parameter ${parameterId}.`;
+          }
+
+          // Format the list of measurements into a human-readable string.
+          // You can customize this formatting as needed.
+          const formattedList = measurements
+            .map((m) => `Measurement ID: ${m.id}, Value: ${m.value}, Notes: ${m.notes}, Timestamp: ${m.timestamp}`)
+            .join('\n');
+
+          return `Measurements for parameter ${parameterId}:\n${formattedList}`;
+        } catch (error) {
+          console.error('Error in listMeasurementsByParameter tool:', error);
+          return `Error listing measurements: ${error instanceof Error ? error.message : error}`;
+        }
+      },
+    });
+
     return [
       saveMemoryTool,
       retrieveMemoriesTool,
@@ -213,6 +244,7 @@ class AgentProviderLangGraph implements AgentProvider {
       createParameterTool,
       listMyParametersTool,
       createMeasurementTool,
+      listMeasurementsByParameterTool,
     ];
   }
 }
