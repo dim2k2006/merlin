@@ -1,5 +1,6 @@
 export interface AgentProvider {
   invoke(input: AgentInvokeInput, options?: AgentInvokeOptions): Promise<AgentResponse>;
+  buildChatMessage(input: BuildChatMessageInput): ChatMessage;
 }
 
 export type AgentInvokeInput = {
@@ -20,3 +21,8 @@ export type ChatMessage = {
 };
 
 type Role = 'developer' | 'user';
+
+export type BuildChatMessageInput = {
+  role: Role;
+  content: string;
+};

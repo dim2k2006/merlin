@@ -4,7 +4,14 @@ import { MemorySaver } from '@langchain/langgraph';
 import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { MemoryService } from '../../domain/memory';
-import { AgentProvider, AgentInvokeInput, AgentInvokeOptions, AgentResponse } from './agent.provider';
+import {
+  AgentProvider,
+  AgentInvokeInput,
+  AgentInvokeOptions,
+  AgentResponse,
+  BuildChatMessageInput,
+  ChatMessage,
+} from './agent.provider';
 
 type ConstructorInput = {
   apiKey: string;
@@ -38,6 +45,13 @@ class AgentProviderLangGraph implements AgentProvider {
 
     return {
       messages: agentState.messages,
+    };
+  }
+
+  buildChatMessage(input: BuildChatMessageInput): ChatMessage {
+    return {
+      role: input.role,
+      content: input.content,
     };
   }
 
