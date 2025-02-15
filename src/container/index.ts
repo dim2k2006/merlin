@@ -2,6 +2,7 @@ import { EmbeddingProvider, EmbeddingProviderOpenAI } from '../providers/embeddi
 import { LlmProvider, LlmProviderOpenai } from '../providers/llm';
 import { AgentProvider, AgentProviderLangGraph } from '../providers/agent';
 import { ParameterProvider, ParameterProviderCorrelate } from '../providers/parameter';
+import { ChatProvider, ChatProviderTelegram } from '../providers/chat';
 import { UserRepositorySupabase, UserService, UserServiceImpl } from '../domain/user';
 import { MemoryRepositoryPinecone, MemoryService, MemoryServiceImpl } from '../domain/memory';
 
@@ -70,6 +71,8 @@ export function buildContainer(config: Config): Container {
 
   const agentProvider = new AgentProviderLangGraph({ apiKey: config.openaiApiKey, memoryService, parameterProvider });
 
+  const chatProvider = new ChatProviderTelegram({ botToken: config.telegramBotToken });
+
   return {
     config,
     userService,
@@ -78,6 +81,7 @@ export function buildContainer(config: Config): Container {
     llmProvider,
     agentProvider,
     parameterProvider,
+    chatProvider,
   };
 }
 
@@ -89,4 +93,5 @@ export type Container = {
   llmProvider: LlmProvider;
   agentProvider: AgentProvider;
   parameterProvider: ParameterProvider;
+  chatProvider: ChatProvider;
 };
