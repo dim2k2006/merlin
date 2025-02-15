@@ -100,21 +100,21 @@ class AgentProviderLangGraph implements AgentProvider {
       },
     });
 
-    const getParameterUserByExternalIdTool = new DynamicStructuredTool({
+    const getParameterUserTool = new DynamicStructuredTool({
       name: 'getParameterServiceUser',
       description:
-        'Retrieves a user from the parameter service by external ID. ' +
+        'Retrieves a user from the parameter service. ' +
         'Use this tool only when you specifically need information from the parameter service, ' +
         'and not when you want information about your Telegram user profile. ' +
-        "Expects a JSON input with an 'externalId' property (e.g., the parameter service user ID).",
+        "Expects a JSON input with 'userId'.",
       schema: z.object({
-        externalId: z.string().describe('The external ID to look up in the parameters service.'),
+        userId: z.string().describe('The unique identifier for the user.'),
       }),
-      func: async ({ externalId }: { externalId: string }) => {
+      func: async ({ userId }: { userId: string }) => {
         try {
-          const user = await this.parameterProvider.getUserByExternalId(externalId);
+          const user = await this.parameterProvider.getUserByExternalId(userId);
           // Format the response in a clear, concise way.
-          return `User retrieved successfully:\nID: ${user.id}\nExternalID: ${user.externalId}\nCreated At: ${user.createdAt}\nUpdated At: ${user.updatedAt}`;
+          return `User retrieved successfully:\nID: ${user.id}\nExternalID: ${user.externalId}\nFirstName: ${user.firstName}\nLastName: ${user.lastName}\nCreated At: ${user.createdAt}\nUpdated At: ${user.updatedAt}`;
         } catch (error) {
           console.log('error:', error);
           return `Error retrieving user: ${error}`;
@@ -122,7 +122,7 @@ class AgentProviderLangGraph implements AgentProvider {
       },
     });
 
-    return [saveMemoryTool, retrieveMemoriesTool, getParameterUserByExternalIdTool];
+    return [saveMemoryTool, retrieveMemoriesTool, getParameterUserTool];
   }
 }
 

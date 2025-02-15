@@ -25,6 +25,8 @@ const ParameterResponseSchema = z.object({
 const UserResponseSchema = z.object({
   id: z.string(),
   externalId: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
