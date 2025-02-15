@@ -28,6 +28,25 @@ const UserResponseSchema = z.object({
   updatedAt: z.string(),
 });
 
+const BaseMeasurementSchema = z.object({
+  type: z.literal('float'), // MeasurementType is only 'float'
+  id: z.string(),
+  userId: z.string(),
+  parameterId: z.string(),
+  timestamp: z.string(),
+  notes: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+// MeasurementFloat schema extends BaseMeasurementSchema with a value property.
+const MeasurementFloatSchema = BaseMeasurementSchema.extend({
+  value: z.number(),
+});
+
+// Since Measurement is only defined as MeasurementFloat, we export it as MeasurementSchema.
+const MeasurementResponseSchema = MeasurementFloatSchema;
+
 type ConstructorInput = {
   apiKey: string;
 };
@@ -100,13 +119,35 @@ class ParameterProviderCorrelate implements ParameterProvider {
   }
 
   async createMeasurement(input: CreateMeasurementInput): Promise<Measurement> {
-    // Implementation details
-    return {} as Measurement;
+    const url = '/api/measurements';
+
+    try {
+      const response = await this.client.post(url, {
+        parameterId: input.parameterId,
+        notes: input.notes,
+        value: input.value,
+      });
+
+      const result = MeasurementResponseSchema.parse(response.data);
+
+      return result;
+    } catch (error) {
+      return handleAxiosError(error, `${this.baseUrl}${url}`);
+    }
   }
 
   async listMeasurementsByParameter(parameterId: string): Promise<Measurement[]> {
-    // Implementation details
-    return [] as Measurement[];
+    const url = `/api/measurements/parameter/${parameterId}}`;
+
+    try {
+      const response = await this.client.get(url);
+
+      const result = z.array(MeasurementResponseSchema).parse(response.data);
+
+      return result;
+    } catch (error) {
+      return handleAxiosError(error, `${this.baseUrl}${url}`);
+    }
   }
 }
 
