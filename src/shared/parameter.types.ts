@@ -1,5 +1,5 @@
 export interface ParameterProvider {
-  getUserByExternalID(externalId: string): Promise<User>;
+  getUserByExternalId(externalId: string): Promise<User>;
 
   createParameter(input: CreateParameterInput): Promise<Parameter>;
   listParametersByUser(userId: string): Promise<Parameter[]>;

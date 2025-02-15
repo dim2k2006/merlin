@@ -95,7 +95,7 @@ class ParameterProviderCorrelate implements ParameterProvider {
     });
   }
 
-  async getUserByExternalID(externalId: string): Promise<User> {
+  async getUserByExternalId(externalId: string): Promise<User> {
     const url = `/api/users/external/${externalId}`;
 
     try {
