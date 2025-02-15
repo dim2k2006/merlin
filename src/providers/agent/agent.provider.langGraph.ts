@@ -7,6 +7,7 @@ import { MemoryService } from '../../domain/memory';
 import { AgentProvider, AgentInvokeInput, AgentInvokeOptions, AgentResponse } from './agent.provider';
 
 type ConstructorInput = {
+  apiKey: string;
   memoryService: MemoryService;
 };
 
@@ -15,11 +16,11 @@ class AgentProviderLangGraph implements AgentProvider {
 
   private memoryService: MemoryService;
 
-  constructor({ memoryService }: ConstructorInput) {
+  constructor({ apiKey, memoryService }: ConstructorInput) {
     this.memoryService = memoryService;
 
     const agentTools = this.buildTools();
-    const agentModel = new ChatOpenAI({ temperature: 0 });
+    const agentModel = new ChatOpenAI({ temperature: 0, apiKey });
     const agentCheckpointer = new MemorySaver();
 
     this.agent = createReactAgent({
