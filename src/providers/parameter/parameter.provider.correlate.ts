@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import crypto from 'crypto';
 import { z } from 'zod';
 import {
   ParameterProvider,
@@ -67,6 +68,30 @@ class ParameterProviderCorrelate implements ParameterProvider {
 
     this.client = axios.create({
       baseURL,
+    });
+
+    this.client.interceptors.request.use((config) => {
+      // Determine the payload string:
+      let payload = '';
+      const method = config.method?.toUpperCase();
+      if (method === 'POST' || method === 'PUT') {
+        // If the data is an object, JSON-stringify it; otherwise, use it as is.
+        payload = config.data ? JSON.stringify(config.data) : '';
+      }
+      // For GET/DELETE, payload is an empty string (or you can use the query string if needed).
+
+      // Generate auth headers
+      const authHeaders = this.attachAuthHeaders(payload);
+
+      // Attach the headers to the request
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      config.headers = {
+        ...config.headers,
+        ...authHeaders,
+      };
+
+      return config;
     });
   }
 
@@ -148,6 +173,22 @@ class ParameterProviderCorrelate implements ParameterProvider {
     } catch (error) {
       return handleAxiosError(error, `${this.baseUrl}${url}`);
     }
+  }
+
+  private attachAuthHeaders(payload: string) {
+    const timestamp = Math.floor(Date.now() / 1000); // current Unix timestamp in seconds
+    const signature = this.computeHMAC(payload, timestamp);
+    return {
+      'X-Timestamp': timestamp.toString(),
+      'X-Signature': signature,
+    };
+  }
+
+  private computeHMAC(payload: string, timestamp: number) {
+    const message = `${payload}|${timestamp}`;
+    const hmac = crypto.createHmac('sha256', this.apiKey);
+    hmac.update(message);
+    return hmac.digest('base64');
   }
 }
 
