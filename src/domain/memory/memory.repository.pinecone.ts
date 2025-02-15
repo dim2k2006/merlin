@@ -49,11 +49,11 @@ class MemoryRepositoryPinecone implements MemoryRepository {
     const result = response.matches.map((match) => {
       return {
         id: match.id,
-        userId: match.metadata.userId,
-        content: match.metadata.content,
+        userId: match.metadata?.userId ?? '',
+        content: match.metadata?.content ?? '',
         embeddingVector: match.values,
         metadata: match.metadata,
-        createdAt: match.metadata.createdAt,
+        createdAt: match.metadata?.createdAt ?? '',
       };
     });
 
