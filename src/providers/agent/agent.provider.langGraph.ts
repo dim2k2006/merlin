@@ -101,10 +101,12 @@ class AgentProviderLangGraph implements AgentProvider {
     });
 
     const getParameterUserByExternalIdTool = new DynamicStructuredTool({
-      name: 'getUserByExternalId',
+      name: 'getParameterServiceUser',
       description:
         'Retrieves a user from the parameter service by external ID. ' +
-        "Expects a JSON input with an 'externalId' property (e.g., the Telegram user ID).",
+        'Use this tool only when you specifically need information from the parameter service, ' +
+        'and not when you want information about your Telegram user profile. ' +
+        "Expects a JSON input with an 'externalId' property (e.g., the parameter service user ID).",
       schema: z.object({
         externalId: z.string().describe('The external ID to look up in the parameters service.'),
       }),
@@ -114,6 +116,7 @@ class AgentProviderLangGraph implements AgentProvider {
           // Format the response in a clear, concise way.
           return `User retrieved successfully:\nID: ${user.id}\nExternalID: ${user.externalId}\nCreated At: ${user.createdAt}\nUpdated At: ${user.updatedAt}`;
         } catch (error) {
+          console.log('error:', error);
           return `Error retrieving user: ${error}`;
         }
       },

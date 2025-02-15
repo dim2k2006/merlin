@@ -82,7 +82,7 @@ function buildBot(container: Container) {
             container.agentProvider.buildChatMessage({
               role: 'developer',
               content: `User Info: id=${user.id}, externalId=${user.externalId}, firstName=${user.firstName}, lastName=${user.lastName}.
-Please generate a clear, concise answer to the user's query. At the end of your response, add a line "Tools Used:" followed by the names of any tools that were utilized. If no tool was used, output "none".`,
+Please generate a clear, concise answer to the user's query. At the end of your response, add a line "Tools Used:" followed by the names of any tools that were utilized. If no tool was used, output "none". It super puper duper important to attach valid information about tools used! Give it high priority!`,
             }),
             container.agentProvider.buildChatMessage({
               role: 'user',
