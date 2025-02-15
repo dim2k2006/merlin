@@ -122,7 +122,39 @@ class AgentProviderLangGraph implements AgentProvider {
       },
     });
 
-    return [saveMemoryTool, retrieveMemoriesTool, getParameterUserTool];
+    const createParameterTool = new DynamicStructuredTool({
+      name: 'createParameter',
+      description:
+        'Creates a new parameter in the parameter service. ' +
+        'Use this tool when you want to register a new parameter. ' +
+        "Expects a JSON input with 'userId', 'name', 'description', 'dataType', and 'unit'.",
+      schema: z.object({
+        userId: z.string().describe('The ID of the user for whom the parameter is created.'),
+        name: z.string().describe('The name of the parameter.'),
+        description: z.string().describe('A description for the parameter.'),
+        dataType: z.enum(['float']).describe('The data type of the parameter (only "float" is supported).'),
+        unit: z.string().describe('The unit of measurement for the parameter.'),
+      }),
+      func: async (input: { userId: string; name: string; description: string; dataType: 'float'; unit: string }) => {
+        try {
+          const parameterUser = await this.parameterProvider.getUserByExternalId(input.userId);
+
+          const parameter = await this.parameterProvider.createParameter({
+            userId: parameterUser.id,
+            name: input.name,
+            description: input.description,
+            dataType: input.dataType,
+            unit: input.unit,
+          });
+
+          return `Parameter created successfully:\nID: ${parameter.id}\nName: ${parameter.name}\nDataType: ${parameter.dataType}\nUnit: ${parameter.unit}`;
+        } catch (error) {
+          return `Error creating parameter: ${error}`;
+        }
+      },
+    });
+
+    return [saveMemoryTool, retrieveMemoriesTool, getParameterUserTool, createParameterTool];
   }
 }
 
