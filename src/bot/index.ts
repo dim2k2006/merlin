@@ -1,5 +1,4 @@
 import { Bot, Context, NextFunction } from 'grammy';
-import { match } from 'ts-pattern';
 import { Container } from '../container';
 
 function buildBot(container: Container) {
@@ -61,29 +60,51 @@ function buildBot(container: Container) {
       return;
     }
 
-    const intent = await container.llmProvider.identifyIntent({ message });
+    const threadId = ctx.from.id.toString() || 'default-thread';
 
-    const action = match(intent)
-      .with('save', () => async () => {
-        await container.memoryService.saveMemory({ userId: user.id, content: message });
+    try {
+      const agentResponse = await container.agentProvider.invoke(
+        {
+          messages: [
+            container.agentProvider.buildChatMessage({
+              role: 'developer',
+              content: `User Info: id=${user.id}, externalId=${user.externalId}, firstName=${user.firstName}, lastName=${user.lastName}`,
+            }),
+            container.agentProvider.buildChatMessage({
+              role: 'user',
+              content: message,
+            }),
+          ],
+        },
+        { threadId },
+      );
 
-        await ctx.react('👍');
-      })
-      .with('retrieve', () => async () => {
-        const response = await container.memoryService.findRelevantMemories({
-          userId: user.id,
-          content: message,
-          k: 50,
-        });
+      const replyMessage = agentResponse.messages[agentResponse.messages.length - 1];
 
-        await ctx.reply(response);
-      })
-      .with('unknown', () => async () => {
-        await ctx.reply('I do not understand your intent. 😔');
-      })
-      .exhaustive();
+      await ctx.reply(replyMessage.content);
+    } catch (error) {
+      const errorMessage = error.message || 'An error occurred.';
 
-    await action();
+      const agentResponse = await container.agentProvider.invoke(
+        {
+          messages: [
+            container.agentProvider.buildChatMessage({
+              role: 'developer',
+              content: `User tried to send: ${message} but an error occurred: ${errorMessage}. Try to summarize the error message and provide a solution.`,
+            }),
+            container.agentProvider.buildChatMessage({
+              role: 'developer',
+              content: `Error message: ${errorMessage}`,
+            }),
+          ],
+        },
+        { threadId },
+      );
+
+      const replyMessage = agentResponse.messages[agentResponse.messages.length - 1];
+
+      await ctx.reply(replyMessage.content);
+    }
   });
 
   return bot;
