@@ -72,7 +72,12 @@ export function buildContainer(config: Config): Container {
 
   const mealCalculatorProvider = new MealCalculatorProviderLangGraph({ apiKey: config.openaiApiKey });
 
-  const agentProvider = new AgentProviderLangGraph({ apiKey: config.openaiApiKey, memoryService, parameterProvider });
+  const agentProvider = new AgentProviderLangGraph({
+    apiKey: config.openaiApiKey,
+    memoryService,
+    parameterProvider,
+    mealCalculatorProvider,
+  });
 
   const chatProvider = new ChatProviderTelegram({ botToken: config.telegramBotToken });
 
@@ -85,6 +90,7 @@ export function buildContainer(config: Config): Container {
     agentProvider,
     parameterProvider,
     chatProvider,
+    mealCalculatorProvider,
   };
 }
 
