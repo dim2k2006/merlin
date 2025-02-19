@@ -29,7 +29,7 @@ class MealCalculatorProviderLangGraph implements MealCalculatorProvider {
   private agent: ReturnType<typeof createReactAgent>;
 
   constructor({ apiKey }: ConstructorInput) {
-    const chatModel = new ChatOpenAI({ model: 'o1', temperature: 0, apiKey });
+    const chatModel = new ChatOpenAI({ model: 'o1-preview', temperature: 1, apiKey });
     const agentCheckpointer = new MemorySaver();
 
     this.agent = createReactAgent({
