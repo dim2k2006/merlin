@@ -254,7 +254,11 @@ class AgentProviderLangGraph implements AgentProvider {
           .describe('A description of the meal, including food items and quantities in grams.'),
       }),
       func: async ({ mealDescription }: { mealDescription: string }) => {
-        return await this.mealCalculatorProvider.calculateMealPfc({ mealDescription });
+        try {
+          return await this.mealCalculatorProvider.calculateMealPfc({ mealDescription });
+        } catch (error) {
+          return `Error calculating meal PFC: ${error}`;
+        }
       },
     });
 
