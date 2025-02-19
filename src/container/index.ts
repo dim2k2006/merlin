@@ -5,6 +5,7 @@ import { ParameterProvider, ParameterProviderCorrelate } from '../providers/para
 import { ChatProvider, ChatProviderTelegram } from '../providers/chat';
 import { UserRepositorySupabase, UserService, UserServiceImpl } from '../domain/user';
 import { MemoryRepositoryPinecone, MemoryService, MemoryServiceImpl } from '../domain/memory';
+import { MealCalculatorProvider, MealCalculatorProviderLangGraph } from '../providers/meal-calculator';
 
 function getEnvVariable(name: string): string {
   const value = process.env[name];
@@ -69,6 +70,8 @@ export function buildContainer(config: Config): Container {
 
   const parameterProvider = new ParameterProviderCorrelate({ apiKey: config.correlateApiKey });
 
+  const mealCalculatorProvider = new MealCalculatorProviderLangGraph({ apiKey: config.openaiApiKey });
+
   const agentProvider = new AgentProviderLangGraph({ apiKey: config.openaiApiKey, memoryService, parameterProvider });
 
   const chatProvider = new ChatProviderTelegram({ botToken: config.telegramBotToken });
@@ -94,4 +97,5 @@ export type Container = {
   agentProvider: AgentProvider;
   parameterProvider: ParameterProvider;
   chatProvider: ChatProvider;
+  mealCalculatorProvider: MealCalculatorProvider;
 };

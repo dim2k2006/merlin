@@ -21,10 +21,14 @@ const MealCalculationOutputSchema = z.object({
     .describe("Breakdown of each ingredient's nutrition (optional)"),
 });
 
+type ConstructorInput = {
+  apiKey: string;
+};
+
 class MealCalculatorProviderLangGraph implements MealCalculatorProvider {
   private agent: ReturnType<typeof createReactAgent>;
 
-  constructor(apiKey: string) {
+  constructor({ apiKey }: ConstructorInput) {
     const chatModel = new ChatOpenAI({ model: 'o1', temperature: 0, apiKey });
     const agentCheckpointer = new MemorySaver();
 
