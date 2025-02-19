@@ -29,6 +29,7 @@
   },
   "homepage": "https://github.com/dim2k2006/merlin#readme",
   "dependencies": {
+    "@grammyjs/conversations": "^2.0.1",
     "@langchain/core": "^0.3.40",
     "@langchain/langgraph": "^0.2.46",
     "@langchain/openai": "^0.4.4",
