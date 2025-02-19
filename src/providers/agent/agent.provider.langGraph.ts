@@ -5,6 +5,7 @@ import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { MemoryService } from '../../domain/memory';
 import { ParameterProvider } from '../../shared/parameter.types';
+import { MealCalculatorProvider } from '../../shared/meal-calculator.types';
 import {
   AgentProvider,
   AgentInvokeInput,
@@ -18,6 +19,7 @@ type ConstructorInput = {
   apiKey: string;
   memoryService: MemoryService;
   parameterProvider: ParameterProvider;
+  mealCalculatorProvider: MealCalculatorProvider;
 };
 
 class AgentProviderLangGraph implements AgentProvider {
@@ -27,10 +29,14 @@ class AgentProviderLangGraph implements AgentProvider {
 
   private parameterProvider: ParameterProvider;
 
-  constructor({ apiKey, memoryService, parameterProvider }: ConstructorInput) {
+  private mealCalculatorProvider: MealCalculatorProvider;
+
+  constructor({ apiKey, memoryService, parameterProvider, mealCalculatorProvider }: ConstructorInput) {
     this.memoryService = memoryService;
 
     this.parameterProvider = parameterProvider;
+
+    this.mealCalculatorProvider = mealCalculatorProvider;
 
     const agentTools = this.buildTools();
     const agentModel = new ChatOpenAI({ model: 'gpt-4o-mini', temperature: 0, apiKey });
@@ -237,6 +243,21 @@ class AgentProviderLangGraph implements AgentProvider {
       },
     });
 
+    const calculateMealPfcTool = new DynamicStructuredTool({
+      name: 'calculateMealPfc',
+      description:
+        'Calculates total proteins, fats, carbohydrates, and calories from a natural language meal description. ' +
+        'Return the result as a structured JSON object.',
+      schema: z.object({
+        mealDescription: z
+          .string()
+          .describe('A description of the meal, including food items and quantities in grams.'),
+      }),
+      func: async ({ mealDescription }: { mealDescription: string }) => {
+        return await this.mealCalculatorProvider.calculateMealPfc({ mealDescription });
+      },
+    });
+
     return [
       saveMemoryTool,
       retrieveMemoriesTool,
@@ -245,6 +266,7 @@ class AgentProviderLangGraph implements AgentProvider {
       listMyParametersTool,
       createMeasurementTool,
       listMeasurementsByParameterTool,
+      calculateMealPfcTool,
     ];
   }
 }
