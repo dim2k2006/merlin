@@ -206,6 +206,11 @@ At the end, add a line "Tools Used:" and list any tools that were involved in ha
                   'The user has provided a meal description, including protein, fats, carbohydrates (PFC), and calorie information. Use this data to generate measurements for PFC and calories. Ensure that each measurement includes the same meal description provided by the user. After generating the measurements, return the total sum for each measurement.',
               }),
               container.agentProvider.buildChatMessage({
+                role: 'developer',
+                content:
+                  'For text styling use only the following allowed html entities: <b>bold</b>, <i>italic</i>, <code>code</code>, <strike>strike</strike>, <u>underline</u>, <pre language="c++">code</pre>',
+              }),
+              container.agentProvider.buildChatMessage({
                 role: 'user',
                 content: mealDescription,
               }),
