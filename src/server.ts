@@ -70,14 +70,10 @@ server.post<{
   Body: { data: { initData: string } };
   Reply:
     | {
-        user?:
-          | {
-              id: string;
-              first_name: string;
-              last_name?: string;
-              username?: string;
-            }
-          | string;
+        id: string;
+        first_name: string;
+        last_name?: string;
+        username?: string;
       }
     | string;
 }>('/api/validate-telegram', { schema: { body: ValidateTelegramBodySchema } }, async (request, reply) => {
@@ -109,9 +105,7 @@ server.post<{
     username: get(userData, 'username', ''),
   };
 
-  console.log('user:', user);
-
-  reply.send({ user });
+  reply.send(user);
 });
 
 function verifyTelegramInitData(initData: string, botToken: string): boolean {
