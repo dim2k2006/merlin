@@ -52,6 +52,25 @@ function buildBot(container: Container) {
     await ctx.reply('You have been successfully registered!');
   });
 
+  bot.command('measurements', auth, async (ctx) => {
+    // Construct the URL to your mini app. You might want to include the user's ID or a token.
+    // const webAppUrl = `https://yourdomain.com/measurements?userId=${ctx.from?.id}`;
+    const webAppUrl = `https://homelly.art/`;
+
+    await ctx.reply('Click the button below to view your measurements:', {
+      reply_markup: {
+        inline_keyboard: [
+          [
+            {
+              text: 'View Measurements',
+              web_app: { url: webAppUrl },
+            },
+          ],
+        ],
+      },
+    });
+  });
+
   bot.on('message', auth, async (ctx) => {
     const externalId = ctx.from.id.toString();
 
