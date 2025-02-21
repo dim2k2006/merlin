@@ -52,15 +52,21 @@ server.post('/webhook', async (request, reply) => {
 
 const ValidateTelegramBodySchema = {
   type: 'object',
-  required: ['initData'],
+  required: ['data'],
   properties: {
-    initData: { type: 'string' },
+    data: {
+      type: 'object',
+      required: ['initData'],
+      properties: {
+        initData: { type: 'string' },
+      },
+    },
   },
   additionalProperties: false,
 };
 
 server.post<{
-  Body: { initData: string };
+  Body: { data: { initData: string } };
   Reply:
     | {
         user?:
@@ -74,7 +80,11 @@ server.post<{
       }
     | string;
 }>('/api/validate-telegram', { schema: { body: ValidateTelegramBodySchema } }, async (request, reply) => {
-  const { initData } = request.body;
+  const { data } = request.body;
+
+  const initData = data.initData;
+
+  console.log('request.body:', request.body);
 
   if (!initData) {
     reply.status(400).send('Bad request');
