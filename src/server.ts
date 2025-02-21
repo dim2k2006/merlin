@@ -1,7 +1,9 @@
 import { config } from 'dotenv';
 import fastify from 'fastify';
+import crypto from 'crypto';
 import { webhookCallback } from 'grammy';
 import * as Sentry from '@sentry/node';
+import cors from '@fastify/cors';
 import { buildConfig, buildContainer } from './container';
 import buildBot from './bot';
 
@@ -19,6 +21,10 @@ Sentry.init({
 const bot = buildBot(container);
 
 const server = fastify();
+
+server.register(cors, {
+  origin: '*',
+});
 
 Sentry.setupFastifyErrorHandler(server);
 
@@ -43,6 +49,83 @@ server.post('/webhook', async (request, reply) => {
     reply.status(200).send('ok');
   }
 });
+
+const ValidateTelegramBodySchema = {
+  type: 'object',
+  required: ['initData'],
+  properties: {
+    initData: { type: 'string' },
+  },
+  additionalProperties: false,
+};
+
+server.post<{
+  Body: { initData: string };
+  Reply:
+    | {
+        user?:
+          | {
+              id: string;
+              first_name: string;
+              last_name?: string;
+              username?: string;
+            }
+          | string;
+      }
+    | string;
+}>('/api/validate-telegram', { schema: { body: ValidateTelegramBodySchema } }, async (request, reply) => {
+  const { initData } = request.body;
+
+  if (!initData) {
+    reply.status(400).send('Bad request');
+    return;
+  }
+
+  // Validate the initData using our helper function.
+  const isValid = verifyTelegramInitData(initData, appConfig.telegramBotToken);
+  if (!isValid) {
+    reply.status(401).send('Unauthorized');
+    return;
+  }
+
+  // Parse initData to extract user data.
+  const params = new URLSearchParams(initData);
+  const user = {
+    id: params.get('id') ?? '',
+    first_name: params.get('first_name') ?? '',
+    last_name: params.get('last_name') ?? '',
+    username: params.get('username') ?? '',
+  };
+
+  reply.send({ user });
+});
+
+export function verifyTelegramInitData(initData: string, botToken: string): boolean {
+  const params = new URLSearchParams(initData);
+
+  // Extract and remove the hash parameter.
+  const receivedHash = params.get('hash');
+  if (!receivedHash) {
+    console.error('initData is missing the hash parameter.');
+    return false;
+  }
+  params.delete('hash');
+
+  // Build the data check string.
+  const dataCheckArr: string[] = [];
+  for (const [key, value] of params.entries()) {
+    dataCheckArr.push(`${key}=${value}`);
+  }
+  dataCheckArr.sort();
+  const dataCheckString = dataCheckArr.join('\n');
+
+  // Create the secret key from the bot token.
+  const secretKey = crypto.createHash('sha256').update(botToken).digest();
+
+  // Compute HMAC-SHA256 and compare to received hash.
+  const computedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
+  return computedHash === receivedHash;
+}
 
 const envPort = process.env.PORT;
 
