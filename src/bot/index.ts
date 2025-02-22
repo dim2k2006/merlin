@@ -71,7 +71,9 @@ function buildBot(container: Container) {
 
     const user = await container.userService.getUserByIdOrExternalId(externalId);
 
-    const webAppUrl = `${container.config.correlateWebAppUrl}?userId=${user.id}`;
+    const parameterUser = await container.parameterProvider.getUserByExternalId(user.id);
+
+    const webAppUrl = `${container.config.correlateWebAppUrl}?userId=${parameterUser.id}`;
 
     await ctx.reply('Click the button below to view your parameters:', {
       reply_markup: {
