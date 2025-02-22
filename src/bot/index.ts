@@ -52,17 +52,35 @@ function buildBot(container: Container) {
     await ctx.reply('You have been successfully registered!');
   });
 
-  bot.command('measurements', auth, async (ctx) => {
-    // Construct the URL to your mini app. You might want to include the user's ID or a token.
-    // const webAppUrl = `https://yourdomain.com/measurements?userId=${ctx.from?.id}`;
-    const webAppUrl = `https://homelly.art/`;
+  bot.command('parameters', auth, async (ctx) => {
+    const externalId = ctx.from?.id.toString();
 
-    await ctx.reply('Click the button below to view your measurements:', {
+    if (!externalId) {
+      await ctx.reply('I failed to identify you. Please try again.');
+
+      return;
+    }
+
+    const isUserExist = await container.userService.isUserExist(externalId);
+
+    if (!isUserExist) {
+      await ctx.reply('Please register first using /register command');
+
+      return;
+    }
+
+    const user = await container.userService.getUserByIdOrExternalId(externalId);
+
+    const parameterUser = await container.parameterProvider.getUserByExternalId(user.id);
+
+    const webAppUrl = `${container.config.correlateWebAppUrl}?userId=${parameterUser.id}`;
+
+    await ctx.reply('Click the button below to view your parameters:', {
       reply_markup: {
         inline_keyboard: [
           [
             {
-              text: 'View Measurements',
+              text: 'View Parameters',
               web_app: { url: webAppUrl },
             },
           ],

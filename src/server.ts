@@ -1,6 +1,7 @@
 import { config } from 'dotenv';
 import fastify from 'fastify';
 import crypto from 'crypto';
+import get from 'lodash/get';
 import { webhookCallback } from 'grammy';
 import * as Sentry from '@sentry/node';
 import cors from '@fastify/cors';
@@ -52,29 +53,33 @@ server.post('/webhook', async (request, reply) => {
 
 const ValidateTelegramBodySchema = {
   type: 'object',
-  required: ['initData'],
+  required: ['data'],
   properties: {
-    initData: { type: 'string' },
+    data: {
+      type: 'object',
+      required: ['initData'],
+      properties: {
+        initData: { type: 'string' },
+      },
+    },
   },
   additionalProperties: false,
 };
 
 server.post<{
-  Body: { initData: string };
+  Body: { data: { initData: string } };
   Reply:
     | {
-        user?:
-          | {
-              id: string;
-              first_name: string;
-              last_name?: string;
-              username?: string;
-            }
-          | string;
+        id: string;
+        first_name: string;
+        last_name?: string;
+        username?: string;
       }
     | string;
 }>('/api/validate-telegram', { schema: { body: ValidateTelegramBodySchema } }, async (request, reply) => {
-  const { initData } = request.body;
+  const { data } = request.body;
+
+  const initData = data.initData;
 
   if (!initData) {
     reply.status(400).send('Bad request');
@@ -90,28 +95,33 @@ server.post<{
 
   // Parse initData to extract user data.
   const params = new URLSearchParams(initData);
+
+  const userData = JSON.parse(params.get('user') ?? '{}');
+
   const user = {
-    id: params.get('id') ?? '',
-    first_name: params.get('first_name') ?? '',
-    last_name: params.get('last_name') ?? '',
-    username: params.get('username') ?? '',
+    id: String(get(userData, 'id', '')),
+    first_name: get(userData, 'first_name', ''),
+    last_name: get(userData, 'last_name', ''),
+    username: get(userData, 'username', ''),
   };
 
-  reply.send({ user });
+  reply.send(user);
 });
 
-export function verifyTelegramInitData(initData: string, botToken: string): boolean {
+function verifyTelegramInitData(initData: string, botToken: string): boolean {
   const params = new URLSearchParams(initData);
 
-  // Extract and remove the hash parameter.
+  // Extract the provided hash.
   const receivedHash = params.get('hash');
   if (!receivedHash) {
     console.error('initData is missing the hash parameter.');
     return false;
   }
+
+  // Remove the hash parameter before creating the data-check-string.
   params.delete('hash');
 
-  // Build the data check string.
+  // Build data-check-string: sort fields alphabetically and join with '\n'
   const dataCheckArr: string[] = [];
   for (const [key, value] of params.entries()) {
     dataCheckArr.push(`${key}=${value}`);
@@ -119,11 +129,12 @@ export function verifyTelegramInitData(initData: string, botToken: string): bool
   dataCheckArr.sort();
   const dataCheckString = dataCheckArr.join('\n');
 
-  // Create the secret key from the bot token.
-  const secretKey = crypto.createHash('sha256').update(botToken).digest();
+  // Compute the secret key using HMAC-SHA256 with "WebAppData" as key.
+  const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
 
-  // Compute HMAC-SHA256 and compare to received hash.
+  // Compute HMAC-SHA256 of the data-check-string using the secret key.
   const computedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
+
   return computedHash === receivedHash;
 }
 

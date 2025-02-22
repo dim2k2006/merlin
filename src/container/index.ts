@@ -22,6 +22,7 @@ export function buildConfig(): Config {
   const telegramBotToken = getEnvVariable('TELEGRAM_BOT_TOKEN');
   const sentryDsn = getEnvVariable('SENTRY_DSN');
   const correlateApiKey = getEnvVariable('CORRELATE_API_KEY');
+  const correlateWebAppUrl = getEnvVariable('CORRELATE_WEB_APP_URL');
 
   return {
     supabaseUrl,
@@ -34,6 +35,7 @@ export function buildConfig(): Config {
     allowedTelegramUserIds: [284307817, 263786736],
     sentryDsn,
     correlateApiKey,
+    correlateWebAppUrl,
   };
 }
 
@@ -48,6 +50,7 @@ export type Config = {
   allowedTelegramUserIds: number[];
   sentryDsn: string;
   correlateApiKey: string;
+  correlateWebAppUrl: string;
 };
 
 export function buildContainer(config: Config): Container {
